@@ -1,0 +1,1467 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>ProfitGrid — Campaign Intelligence & Offer Simulation Platform</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="description" content="ProfitGrid is the campaign intelligence platform that predicts ROI, margin impact, reward liability, and user-base behaviour before you launch cashback, discounts, loyalty, or retention offers."/>
+<meta property="og:title" content="ProfitGrid — Campaign Intelligence & Offer Simulation"/>
+<meta property="og:description" content="Predict ROI, margin impact, and user-base behaviour before you launch any offer."/>
+<meta property="og:type" content="website"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#ffffff;font-family:'Inter',sans-serif}
+  body{min-height:100vh;overflow-x:hidden}
+  html{scroll-behavior:smooth}
+  #root .lp-boot{min-height:100vh;display:grid;place-items:center;color:#6a7a72;font-size:14px}
+</style>
+</head>
+<body>
+<div id="root"><div class="lp-boot">Loading ProfitGrid…</div></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<script type="text/babel" data-presets="react">
+/* Landing page primitives, tokens, animations.
+   Premium SaaS · emerald/mint accent · Stripe-Linear-Notion mood. */
+const { useState: useStateL, useEffect: useEffectL, useRef: useRefL } = React;
+
+const LP_CSS = `
+:root{
+  --bg:#ffffff;
+  --bg-2:#fafbfa;
+  --bg-3:#f4f7f4;
+  --bg-4:#e7ede8;
+  --ink:#0a1f15;
+  --ink-2:#3a4a42;
+  --ink-3:#6a7a72;
+  --ink-4:#a0aaa3;
+  --line:rgba(10,31,21,.07);
+  --line-2:rgba(10,31,21,.13);
+  --emerald:#059669;
+  --emerald-2:#047857;
+  --emerald-soft:#d1fae5;
+  --mint:#34d399;
+  --mint-soft:#ecfdf5;
+  --blue:#3b82f6;
+  --blue-soft:#dbeafe;
+  --amber:#f59e0b;
+  --amber-soft:#fef3c7;
+  --rose:#f43f5e;
+  --rose-soft:#ffe4e6;
+  --display:'Instrument Serif',Georgia,serif;
+  --ui:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+.lp *,.lp *::before,.lp *::after{box-sizing:border-box}
+.lp{font-family:var(--ui);color:var(--ink);background:var(--bg);font-feature-settings:'cv11','ss01';line-height:1.55;letter-spacing:-.005em;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.lp button{font:inherit;color:inherit;cursor:pointer;border:0;background:transparent}
+.lp a{color:inherit;text-decoration:none;cursor:pointer}
+.lp h1,.lp h2,.lp h3,.lp h4{margin:0;font-weight:600;letter-spacing:-.025em;line-height:1.05}
+
+/* ── Navbar ── */
+.lp-nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;padding:14px 32px;background:rgba(255,255,255,.78);backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}
+.lp-logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;letter-spacing:-.01em}
+.lp-logo-mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--emerald),var(--mint));display:grid;place-items:center;color:#fff;font-family:var(--display);font-weight:400;font-size:16px;box-shadow:0 4px 16px rgba(5,150,105,.25)}
+.lp-nav-links{display:flex;gap:30px;font-size:13.5px;color:var(--ink-2);margin-left:36px}
+.lp-nav-links a{transition:color .12s}
+.lp-nav-links a:hover{color:var(--ink)}
+.lp-nav-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+
+/* Buttons */
+.lp-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:99px;font-size:13.5px;font-weight:500;transition:all .18s cubic-bezier(.2,.8,.2,1);border:1px solid var(--line-2);background:var(--bg);color:var(--ink);white-space:nowrap}
+.lp-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(10,31,21,.10)}
+.lp-btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lp-btn.primary:hover{background:#000}
+.lp-btn.accent{background:linear-gradient(135deg,var(--emerald),var(--mint));color:#fff;border-color:transparent;box-shadow:0 8px 24px rgba(5,150,105,.28),inset 0 1px 0 rgba(255,255,255,.18)}
+.lp-btn.accent:hover{transform:translateY(-1px);box-shadow:0 12px 32px rgba(5,150,105,.36),inset 0 1px 0 rgba(255,255,255,.18)}
+.lp-btn.lg{padding:14px 26px;font-size:14.5px}
+.lp-btn.sm{padding:7px 14px;font-size:12.5px}
+
+/* Pills / chips */
+.lp-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;font-size:12px;font-weight:500;border:1px solid var(--line);background:var(--bg)}
+.lp-pill.ok{background:var(--emerald-soft);color:var(--emerald-2);border-color:transparent}
+.lp-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--emerald);box-shadow:0 0 0 3px rgba(52,211,153,.20)}
+
+/* Eyebrow */
+.lp-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--emerald-2);font-weight:600}
+.lp-eyebrow::before{content:"";width:18px;height:1px;background:var(--emerald)}
+
+/* Glass surface */
+.lp-glass{background:rgba(255,255,255,.72);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.6);box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 20px 60px -20px rgba(10,31,21,.12),0 2px 8px rgba(10,31,21,.04)}
+
+.lp-card{background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:24px}
+
+/* Reveal on scroll — VISIBLE BY DEFAULT. Hidden state only applies once JS
+   adds .js-reveal to the root, so content can never get stuck invisible. */
+.reveal{opacity:1;transform:none;transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1)}
+.js-reveal .reveal:not(.in){opacity:0;transform:translateY(16px)}
+@media (prefers-reduced-motion: reduce){
+  .js-reveal .reveal:not(.in){opacity:1;transform:none}
+}
+
+/* Section spacing */
+.sec{padding:100px 32px;max-width:1280px;margin:0 auto;position:relative}
+.sec-narrow{max-width:1120px}
+.sec-head{text-align:center;max-width:760px;margin:0 auto 64px}
+.sec-h{font-family:var(--ui);font-size:clamp(36px,4.5vw,56px);font-weight:600;letter-spacing:-.03em;line-height:1.04;margin:18px 0 18px}
+.sec-h em{font-family:var(--display);font-style:italic;font-weight:400;color:var(--emerald-2)}
+.sec-lede{font-size:18px;color:var(--ink-2);line-height:1.55;max-width:620px;margin:0 auto}
+
+/* Decorative blobs */
+.blob{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;opacity:.55}
+.blob.a{width:520px;height:520px;background:radial-gradient(circle,var(--emerald-soft),transparent 70%)}
+.blob.b{width:420px;height:420px;background:radial-gradient(circle,var(--blue-soft),transparent 70%)}
+.blob.c{width:380px;height:380px;background:radial-gradient(circle,#fef3c7,transparent 70%)}
+
+@keyframes lp-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(1.08)}}
+.anim-pulse{animation:lp-pulse 2.6s ease-in-out infinite}
+@keyframes lp-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.anim-float{animation:lp-float 6s ease-in-out infinite}
+@keyframes lp-shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.anim-shimmer{background:linear-gradient(90deg,transparent,rgba(52,211,153,.18),transparent);background-size:200% 100%;animation:lp-shimmer 3s linear infinite}
+
+/* Sparkline / tiny chart helpers */
+.lp-chart{position:relative}
+.lp-bar{height:6px;background:var(--bg-3);border-radius:99px;overflow:hidden;position:relative}
+.lp-bar > div{height:100%;background:linear-gradient(90deg,var(--emerald),var(--mint));border-radius:99px;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+
+/* Mini KPI */
+.lp-kpi{display:flex;flex-direction:column;gap:4px}
+.lp-kpi-l{font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.lp-kpi-v{font-family:var(--display);font-size:32px;font-weight:400;letter-spacing:-.01em;line-height:1}
+.lp-kpi-d{font-size:11px;color:var(--emerald-2);font-weight:500}
+`;
+
+function injectLPCss(){
+  if(document.getElementById('lp-css')) return;
+  const s=document.createElement('style');s.id='lp-css';s.textContent=LP_CSS;document.head.appendChild(s);
+}
+
+/* Reveal observer — VISIBLE BY DEFAULT. Adds .js-reveal to enable the hidden
+   entrance state, then reveals via IntersectionObserver. Safety net DROPS
+   .js-reveal entirely after 1.5s so nothing can stay invisible. */
+function useReveal(){
+  useEffectL(()=>{
+    let raf;
+    const root = document.documentElement;
+    const reveal = (el) => el.classList.add('in');
+    root.classList.add('js-reveal');
+    const observe = () => {
+      if(typeof IntersectionObserver === 'undefined'){
+        root.classList.remove('js-reveal');
+        return null;
+      }
+      const obs=new IntersectionObserver(entries=>{
+        entries.forEach(e=>{ if(e.isIntersecting){ reveal(e.target); obs.unobserve(e.target);} });
+      },{ threshold:.05, rootMargin:'0px 0px -20px 0px' });
+      document.querySelectorAll('.reveal:not(.in)').forEach(el=>obs.observe(el));
+      return obs;
+    };
+    raf = requestAnimationFrame(() => {
+      const obs = observe();
+      // Safety net — anything still hidden after 1.5s: reveal it, and drop the
+      // gate so the hidden rule can no longer apply to anything.
+      setTimeout(()=>{
+        document.querySelectorAll('.reveal:not(.in)').forEach(reveal);
+        root.classList.remove('js-reveal');
+      }, 1500);
+      // Watch for new .reveal nodes appearing (lazy-rendered sections)
+      const mo = new MutationObserver(()=>{ if(obs) document.querySelectorAll('.reveal:not(.in)').forEach(el=>obs.observe(el)); });
+      mo.observe(document.body,{childList:true,subtree:true});
+    });
+    return ()=>cancelAnimationFrame(raf);
+  },[]);
+}
+
+/* Animated counter */
+function useCount(target, dur=1400, start=true){
+  const [v,setV] = useStateL(0);
+  useEffectL(()=>{
+    if(!start) return;
+    let raf, t0;
+    const step=t=>{ if(!t0)t0=t; const p=Math.min(1,(t-t0)/dur); const e=1-Math.pow(1-p,3); setV(Math.round(target*e)); if(p<1) raf=requestAnimationFrame(step); };
+    raf=requestAnimationFrame(step);
+    return ()=>cancelAnimationFrame(raf);
+  },[target,dur,start]);
+  return v;
+}
+function Counter({to, prefix="", suffix="", format=v=>v.toLocaleString()}){
+  const ref=useRefL(null); const [on,setOn]=useStateL(false);
+  useEffectL(()=>{
+    if(!ref.current) return;
+    const o=new IntersectionObserver(([e])=>{ if(e.isIntersecting){ setOn(true); o.disconnect();} },{threshold:.3});
+    o.observe(ref.current); return ()=>o.disconnect();
+  },[]);
+  const v=useCount(to,1400,on);
+  return <span ref={ref}>{prefix}{format(v)}{suffix}</span>;
+}
+
+/* Sparkline */
+function Spark({pts, w=120, h=36, stroke="var(--emerald)", fill}){
+  const max=Math.max(...pts), min=Math.min(...pts), r=max-min||1;
+  const d=pts.map((v,i)=>{const x=(i/(pts.length-1))*w; const y=h-((v-min)/r)*(h-4)-2; return (i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)}).join(' ');
+  const area=`${d} L${w} ${h} L0 ${h} Z`;
+  return <svg width={w} height={h} style={{display:'block',overflow:'visible'}}>
+    {fill && <path d={area} fill={fill}/>}
+    <path d={d} fill="none" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx={w} cy={h-((pts[pts.length-1]-min)/r)*(h-4)-2} r="3" fill={stroke}/>
+  </svg>;
+}
+
+Object.assign(window,{ injectLPCss, useReveal, Counter, Spark });
+
+
+/* Hero section — universal positioning */
+function Hero({ openModal, headline, headlineItalic, headlineTail, subhead, ctaPrimary, ctaSecondary }) {
+  return <section style={{ position: 'relative', overflow: 'hidden', padding: "60px 32px 50px" }}>
+    <div className="blob a" style={{ top: -100, right: -180 }} />
+    <div className="blob b" style={{ top: 200, left: -200, opacity: .35 }} />
+
+    <div style={{ maxWidth: 1280, margin: '0 auto', position: 'relative' }}>
+      <div className="reveal" style={{ textAlign: 'center', maxWidth: 880, margin: '0 auto' }}>
+        <div className="lp-pill" style={{ marginBottom: 28 }}>
+          <span className="dot anim-pulse" />
+          <span>Campaign Intelligence · The operating system for offer economics</span>
+        </div>
+
+        <h1 style={{ fontSize: 'clamp(48px,7vw,84px)', fontWeight: 600, letterSpacing: '-.035em', lineHeight: .98, marginBottom: 24 }}>
+          {headline || 'Your offers should be'}<br />
+          <em style={{ fontFamily: 'var(--display)', fontStyle: 'italic', fontWeight: 400, background: 'linear-gradient(120deg,var(--emerald),var(--mint))', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>{headlineItalic || 'engineered.'}</em>{" "}
+          <span style={{ color: 'var(--ink-3)' }}>{headlineTail || 'not guessed.'}</span>
+        </h1>
+
+        <p style={{ fontSize: 19, color: 'var(--ink-2)', lineHeight: 1.55, maxWidth: 680, margin: '0 auto 36px' }}>
+          {subhead || 'The campaign intelligence layer for any business that runs cashback, discounts, loyalty, referrals, wallets, or coupons. Predict ROI, margin impact, and user-base behaviour — before you launch.'}
+        </p>
+
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 14, flexWrap: 'wrap' }}>
+          <button className="lp-btn accent lg" onClick={openModal}>{ctaPrimary || 'Request demo'} <span style={{ opacity: .7 }}>→</span></button>
+          {ctaSecondary && <button className="lp-btn lg" onClick={openModal}>{ctaSecondary}</button>}
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--ink-3)' }}>Built for D2C, fintech, subscription, quick commerce, marketplaces, and consumer apps</div>
+      </div>
+
+      <div className="reveal" style={{ marginTop: 80, position: 'relative' }}>
+        <DashboardMockup />
+      </div>
+
+      <div className="reveal" style={{ marginTop: 60, display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 20, maxWidth: 1100, marginLeft: 'auto', marginRight: 'auto' }}>
+        {[
+        { l: 'campaign simulation in real time' },
+        { l: 'reward types modelled end-to-end' },
+        { l: 'segment archetypes mapped' },
+        { l: 'behavioural levers per offer' }].
+        map((s, i) =>
+        <div key={i} style={{ textAlign: 'center', padding: '18px 16px', borderRadius: 14, border: '1px solid var(--line)', background: 'rgba(255,255,255,.5)', backdropFilter: 'blur(10px)' }}>
+            <div style={{ fontFamily: 'var(--display)', fontSize: 34, fontWeight: 400, letterSpacing: '-.01em', color: 'var(--emerald-2)', lineHeight: 1, marginBottom: 6 }}>
+              {i === 0 ? <>&lt;5s</> : i === 1 ? <><Counter to={9} />+</> : i === 2 ? <Counter to={18} /> : <Counter to={24} />}
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--ink-3)', lineHeight: 1.4 }}>{s.l}</div>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>;
+}
+
+/* The hero dashboard mockup — multi-layer card composition */
+function DashboardMockup() {
+  return <div style={{ position: 'relative', maxWidth: 1100, margin: '0 auto' }}>
+    {/* Background glow */}
+    <div style={{ position: 'absolute', inset: '-40px -60px', background: 'radial-gradient(ellipse at center,rgba(52,211,153,.18),transparent 65%)', filter: 'blur(40px)', pointerEvents: 'none' }} />
+
+    {/* Main browser-style frame */}
+    <div className="lp-glass" style={{ borderRadius: 22, padding: 14, position: 'relative' }}>
+      <div style={{ background: 'var(--bg)', border: '1px solid var(--line)', borderRadius: 14, overflow: 'hidden' }}>
+        {/* Window bar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '12px 16px', borderBottom: '1px solid var(--line)', background: 'var(--bg-2)' }}>
+          <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#fc5e57' }} />
+          <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#fdbc40' }} />
+          <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#34c84a' }} />
+          <div style={{ flex: 1, textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--ink-3)' }}>app.offeros.io/simulate</div>
+          <span className="lp-pill ok" style={{ fontSize: 10, padding: '2px 8px' }}><span className="dot" />Live</span>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: 24, display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 18, minHeight: 440 }}>
+          {/* Left — main simulation */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+              <div>
+                <div style={{ fontSize: 10.5, letterSpacing: '.10em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600, marginBottom: 4 }}>Simulating · 12s ago</div>
+                <div style={{ fontFamily: 'var(--display)', fontSize: 24, letterSpacing: '-.01em' }}>First-purchase cashback · 10%</div>
+              </div>
+              <span className="lp-pill ok"><span className="dot" />Profitable</span>
+            </div>
+
+            {/* Big metric */}
+            <div style={{ padding: '22px 24px', background: 'linear-gradient(135deg,#0a1f15,#163a2a)', borderRadius: 16, color: '#fff', marginBottom: 16, position: 'relative', overflow: 'hidden' }}>
+              <div className="anim-shimmer" style={{ position: 'absolute', inset: 0, opacity: .5, pointerEvents: 'none' }} />
+              <div style={{ fontSize: 10.5, letterSpacing: '.10em', textTransform: 'uppercase', opacity: .6, fontWeight: 600, marginBottom: 8 }}>Projected net P&amp;L</div>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14 }}>
+                <div style={{ fontFamily: 'var(--display)', fontSize: 54, fontWeight: 400, lineHeight: 1, letterSpacing: '-.02em', color: 'var(--mint)' }}>+₹<Counter to={142000} format={(v) => (v / 1000).toFixed(1) + 'k'} /></div>
+                <div style={{ opacity: .6, fontSize: 13, paddingBottom: 8 }}>over 90 days · +<Counter to={28} suffix="%" /> repeat lift</div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14, marginTop: 18, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,.10)' }}>
+                <div><div style={{ fontSize: 10, opacity: .5, textTransform: 'uppercase', letterSpacing: '.08em' }}>Margin</div><div style={{ fontSize: 16, fontWeight: 500, marginTop: 2 }}>+₹3.2L</div></div>
+                <div><div style={{ fontSize: 10, opacity: .5, textTransform: 'uppercase', letterSpacing: '.08em' }}>Reward cost</div><div style={{ fontSize: 16, fontWeight: 500, marginTop: 2, color: '#fca5a5' }}>−₹1.55L</div></div>
+                <div><div style={{ fontSize: 10, opacity: .5, textTransform: 'uppercase', letterSpacing: '.08em' }}>Break-even</div><div style={{ fontSize: 16, fontWeight: 500, marginTop: 2 }}>3.2 orders</div></div>
+              </div>
+            </div>
+
+            {/* Chart */}
+            <div style={{ padding: 18, border: '1px solid var(--line)', borderRadius: 14, background: 'var(--bg-2)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                <div style={{ fontSize: 12, fontWeight: 600 }}>30-day forecast · Margin vs Reward</div>
+                <div style={{ display: 'flex', gap: 8, fontSize: 10, color: 'var(--ink-3)' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--emerald)' }} />Margin</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--rose)' }} />Reward</span>
+                </div>
+              </div>
+              <ForecastChart />
+            </div>
+          </div>
+
+          {/* Right — AI insight + side cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* AI insight */}
+            <div style={{ padding: 18, borderRadius: 14, background: 'linear-gradient(135deg,var(--emerald-soft),var(--mint-soft))', border: '1px solid rgba(52,211,153,.25)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <div style={{ width: 24, height: 24, borderRadius: 7, background: 'linear-gradient(135deg,var(--emerald),var(--mint))', display: 'grid', placeItems: 'center', color: '#fff', fontFamily: 'var(--display)', fontSize: 13 }}>✦</div>
+                <div style={{ fontSize: 10.5, letterSpacing: '.10em', textTransform: 'uppercase', color: 'var(--emerald-2)', fontWeight: 600 }}>Insight</div>
+              </div>
+              <div style={{ fontSize: 13, lineHeight: 1.55, color: '#0a3a26' }}>Order #3 is your stickiness threshold. Consider <b>increasing reward progression after order 2</b> — projected +9% repeat rate.</div>
+            </div>
+
+            {/* Segment card */}
+            <div style={{ padding: 16, borderRadius: 14, border: '1px solid var(--line)', background: 'var(--bg)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, alignItems: 'center' }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink-3)', letterSpacing: '.06em', textTransform: 'uppercase' }}>Segment Match</div>
+                <span className="lp-pill" style={{ padding: '2px 8px', fontSize: 10 }}>First-time buyers</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div><div style={{ fontSize: 10, color: 'var(--ink-3)' }}>Reach</div><div style={{ fontFamily: 'var(--display)', fontSize: 22, marginTop: 2 }}><Counter to={5240} /></div></div>
+                <div><div style={{ fontSize: 10, color: 'var(--ink-3)' }}>Repeat prob</div><div style={{ fontFamily: 'var(--display)', fontSize: 22, marginTop: 2, color: 'var(--emerald-2)' }}><Counter to={68} suffix="%" /></div></div>
+              </div>
+              <div style={{ marginTop: 12 }}><Spark pts={[6, 8, 11, 9, 14, 16, 18, 22, 25, 28]} w={240} h={32} fill="var(--mint-soft)" /></div>
+            </div>
+
+            {/* Risk card */}
+            <div style={{ padding: 16, borderRadius: 14, border: '1px solid var(--amber-soft)', background: 'rgba(254,243,199,.4)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <div style={{ width: 22, height: 22, borderRadius: 6, background: 'var(--amber)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 700 }}>!</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#92400e', letterSpacing: '.06em', textTransform: 'uppercase' }}>Risk Detected</div>
+              </div>
+              <div style={{ fontSize: 12, color: '#78350f', lineHeight: 1.5 }}>This offer overlaps <b>"Refer & earn"</b> on the same cohort. Potential 12% reward stacking.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Floating accent cards */}
+    <div className="anim-float" style={{ position: 'absolute', top: -30, right: -30, padding: '14px 18px', background: '#fff', borderRadius: 14, boxShadow: '0 16px 40px -10px rgba(10,31,21,.20)', border: '1px solid var(--line)', display: 'flex', alignItems: 'center', gap: 10, zIndex: 2 }}>
+      <div style={{ width: 34, height: 34, borderRadius: 10, background: 'var(--emerald-soft)', color: 'var(--emerald-2)', display: 'grid', placeItems: 'center', fontSize: 18 }}>↑</div>
+      <div>
+        <div style={{ fontSize: 10, color: 'var(--ink-3)', letterSpacing: '.08em', textTransform: 'uppercase' }}>Conversion lift</div>
+        <div style={{ fontFamily: 'var(--display)', fontSize: 22, color: 'var(--emerald-2)', lineHeight: 1 }}>+<Counter to={28} />%</div>
+      </div>
+    </div>
+    <div className="anim-float" style={{ animationDelay: '-2s', position: 'absolute', bottom: -20, left: -20, padding: '12px 16px', background: '#fff', borderRadius: 14, boxShadow: '0 16px 40px -10px rgba(10,31,21,.20)', border: '1px solid var(--line)', display: 'flex', alignItems: 'center', gap: 10, zIndex: 2 }}>
+      <div style={{ width: 30, height: 30, borderRadius: 9, background: 'var(--blue-soft)', color: 'var(--blue)', display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontSize: 14 }}>◐</div>
+      <div>
+        <div style={{ fontSize: 10, color: 'var(--ink-3)', letterSpacing: '.08em', textTransform: 'uppercase' }}>Break-even</div>
+        <div style={{ fontFamily: 'var(--display)', fontSize: 18, lineHeight: 1 }}>3.2 sessions</div>
+      </div>
+    </div>
+  </div>;
+}
+
+function ForecastChart() {
+  const w = 540,h = 130,p = 4;
+  const margin = [2, 4, 7, 11, 14, 18, 22, 27, 33, 38, 44, 50, 56, 63, 71, 79, 87, 96, 105, 114, 124, 135, 146, 157, 170, 182, 196, 210, 225, 240];
+  const reward = [3, 5, 8, 10, 12, 15, 18, 21, 25, 28, 32, 36, 40, 45, 50, 55, 61, 66, 72, 78, 84, 90, 96, 103, 109, 116, 122, 129, 135, 142];
+  const max = Math.max(...margin, ...reward);
+  const x = (i) => p + i / (margin.length - 1) * (w - 2 * p);
+  const y = (v) => h - p - v / max * (h - 2 * p);
+  const path = (arr) => arr.map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');
+  const area = (arr, color) => `${path(arr)} L${x(arr.length - 1)} ${h - p} L${x(0)} ${h - p} Z`;
+  return <svg viewBox={`0 0 ${w} ${h}`} width="100%" height={h} preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="lpgM" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--emerald)" stopOpacity=".28" /><stop offset="100%" stopColor="var(--emerald)" stopOpacity="0" /></linearGradient>
+      <linearGradient id="lpgR" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--rose)" stopOpacity=".22" /><stop offset="100%" stopColor="var(--rose)" stopOpacity="0" /></linearGradient>
+    </defs>
+    {[.25, .5, .75].map((p, i) => <line key={i} x1="0" x2={w} y1={h * p} y2={h * p} stroke="var(--line)" strokeDasharray="2 4" />)}
+    <path d={area(margin)} fill="url(#lpgM)" />
+    <path d={area(reward)} fill="url(#lpgR)" />
+    <path d={path(margin)} fill="none" stroke="var(--emerald)" strokeWidth="2" strokeLinecap="round" />
+    <path d={path(reward)} fill="none" stroke="var(--rose)" strokeWidth="2" strokeLinecap="round" />
+    <circle cx={x(margin.length - 1)} cy={y(margin[margin.length - 1])} r="4" fill="var(--emerald)" />
+  </svg>;
+}
+
+Object.assign(window, { Hero });
+
+/* Sections: Problem (split comparison), Platform overview, Simulation examples,
+   Bento features, Social proof, How it works, Final CTA, Footer. */
+
+/* ── PROBLEM SECTION ── */
+function Problem() {
+  return <section className="sec" style={{ background: 'var(--bg-2)', maxWidth: 'none', padding: "50px 32px" }}>
+    <div className="sec" style={{ padding: '0', margin: '0 auto' }}>
+      <div className="sec-head reveal">
+        <div className="lp-eyebrow">The Problem</div>
+        <h2 className="sec-h">Most campaigns are built on <em>assumptions.</em></h2>
+        <p className="sec-lede">"Let's try 15% cashback" rarely survives contact with reality. The cost shows up in finance reviews — six weeks too late.</p>
+      </div>
+
+      <div className="reveal" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, maxWidth: 1100, margin: '0 auto' }}>
+        {/* Traditional */}
+        <div style={{ padding: '32px 32px', borderRadius: 20, background: '#fff', border: '1px solid var(--line)', position: 'relative' }}>
+          <div style={{ fontSize: 11, letterSpacing: '.10em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600, marginBottom: 14 }}>Traditional planning</div>
+          <h3 style={{ fontFamily: 'var(--display)', fontSize: 32, fontWeight: 400, letterSpacing: '-.01em', lineHeight: 1.05, marginBottom: 6 }}>Guesswork wrapped in a spreadsheet.</h3>
+          <p style={{ color: 'var(--ink-3)', fontSize: 13.5, marginBottom: 22 }}>The campaign launches. Hope kicks in.</p>
+          <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 11 }}>
+            {['Excel sheets with copy-pasted competitor rates', 'Static rules — no behavioural inputs', 'Marketing and finance review three weeks apart', 'Overlapping offers cannibalising each other', 'Reward abuse caught at month-end, not week one', 'Retention campaigns launched without segment data'].map((t, i) =>
+            <li key={i} style={{ display: 'flex', gap: 10, fontSize: 13.5, color: 'var(--ink-2)', alignItems: 'flex-start' }}>
+                <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'var(--rose-soft)', color: 'var(--rose)', display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>×</span>
+                <span>{t}</span>
+              </li>
+            )}
+          </ul>
+          <div style={{ marginTop: 24, paddingTop: 18, borderTop: '1px solid var(--line)', display: 'flex', gap: 16 }}>
+            <div><div style={{ fontSize: 10, color: 'var(--ink-3)', letterSpacing: '.08em', textTransform: 'uppercase' }}>Margin leak</div><div style={{ fontFamily: 'var(--display)', fontSize: 24, color: 'var(--rose)' }}>−12 to −22%</div></div>
+            <div><div style={{ fontSize: 10, color: 'var(--ink-3)', letterSpacing: '.08em', textTransform: 'uppercase' }}>Time to insight</div><div style={{ fontFamily: 'var(--display)', fontSize: 24, color: 'var(--rose)' }}>4–6 wks</div></div>
+          </div>
+        </div>
+
+        {/* AI Intelligence */}
+        <div style={{ padding: '32px 32px', borderRadius: 20, background: 'linear-gradient(180deg,#0a1f15,#0a3a26)', color: '#fff', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: -100, right: -100, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle,rgba(52,211,153,.20),transparent 65%)' }} />
+          <div style={{ fontSize: 11, letterSpacing: '.10em', textTransform: 'uppercase', color: 'var(--mint)', fontWeight: 600, marginBottom: 14, position: 'relative' }}>AI Intelligence</div>
+          <h3 style={{ fontFamily: 'var(--display)', fontSize: 32, fontWeight: 400, letterSpacing: '-.01em', lineHeight: 1.05, marginBottom: 6, position: 'relative' }}>Predictive math, not vibes.</h3>
+          <p style={{ color: 'rgba(255,255,255,.65)', fontSize: 13.5, marginBottom: 22, position: 'relative' }}>Simulate first. Launch only what passes.</p>
+          <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 11, position: 'relative' }}>
+            {['Predictive ROI per segment per reward', 'AI-suggested rates against your live behaviour data', 'Real-time conflict detection across all live offers', 'Reward liability calculated upfront — not at month-end', 'Break-even thresholds with confidence intervals', 'Abuse pattern flagging from sim transactions'].map((t, i) =>
+            <li key={i} style={{ display: 'flex', gap: 10, fontSize: 13.5, color: 'rgba(255,255,255,.85)', alignItems: 'flex-start' }}>
+                <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(52,211,153,.20)', color: 'var(--mint)', display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>✓</span>
+                <span>{t}</span>
+              </li>
+            )}
+          </ul>
+          <div style={{ marginTop: 24, paddingTop: 18, borderTop: '1px solid rgba(255,255,255,.10)', display: 'flex', gap: 16, position: 'relative' }}>
+            <div><div style={{ fontSize: 10, color: 'rgba(255,255,255,.5)', letterSpacing: '.08em', textTransform: 'uppercase' }}>Margin protected</div><div style={{ fontFamily: 'var(--display)', fontSize: 24, color: 'var(--mint)' }}>+36% avg</div></div>
+            <div><div style={{ fontSize: 10, color: 'rgba(255,255,255,.5)', letterSpacing: '.08em', textTransform: 'uppercase' }}>Time to insight</div><div style={{ fontFamily: 'var(--display)', fontSize: 24, color: 'var(--mint)' }}>&lt;5s</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>;
+}
+
+/* ── PLATFORM OVERVIEW ── */
+function Platform() {
+  const modules = [
+  { n: '01', t: 'Audience Intelligence', d: 'Auto-segmented archetypes with behavioural priors', pill: 'New · 5.2k', color: 'emerald' },
+  { n: '02', t: 'Offer Builder', d: 'Cashback, discount, coupon, loyalty, preload — one canvas', pill: '9 offer types', color: 'emerald' },
+  { n: '03', t: 'Reward Simulator', d: 'Drop in transactions, watch payouts apply in real time', pill: '<5s', color: 'mint' },
+  { n: '04', t: 'AI Recommendations', d: '"Move tier 3 to session 2 for +9% retention"', pill: 'Live', color: 'mint' },
+  { n: '05', t: 'ROI Forecasting', d: 'Margin, net P&L, payback period — with confidence', pill: 'P&L', color: 'blue' },
+  { n: '06', t: 'Wallet Economics', d: 'Pre-load distribution, slab cashback, abuse caps', pill: 'Cy ₹150', color: 'blue' },
+  { n: '07', t: 'Segment Targeting', d: 'CSV cohorts × archetype × behavioural triggers', pill: 'AND/OR', color: 'amber' },
+  { n: '08', t: 'Conflict Detection', d: 'Catches segment + reward + activity overlaps', pill: '⚠ 2', color: 'amber' },
+  { n: '09', t: 'Scenario Testing', d: 'A/B simulation lab for tier curves and caps', pill: 'A vs B', color: 'rose' },
+  { n: '10', t: 'Lifecycle Tracking', d: 'Draft → Ready → Approved → Live → Completed', pill: '5 states', color: 'rose' }];
+
+  const cmap = { emerald: ['var(--emerald-soft)', 'var(--emerald-2)'], mint: ['var(--mint-soft)', 'var(--emerald-2)'], blue: ['var(--blue-soft)', 'var(--blue)'], amber: ['var(--amber-soft)', '#92400e'], rose: ['var(--rose-soft)', 'var(--rose)'] };
+  return <section className="sec" style={{ padding: "50px 32px" }}>
+    <div className="sec-head reveal">
+      <div className="lp-eyebrow">The Platform</div>
+      <h2 className="sec-h">The operating system for <em>intelligent offers.</em></h2>
+      <p className="sec-lede">Ten modules. One workspace. Replaces three spreadsheets and the email chain between marketing, finance, and ops.</p>
+    </div>
+    <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 14 }}>
+      {modules.map((m, i) => {
+        const [bg, fg] = cmap[m.color];
+        return <div key={i} style={{ padding: 24, borderRadius: 18, border: '1px solid var(--line)', background: '#fff', transition: 'all .25s cubic-bezier(.2,.8,.2,1)', cursor: 'pointer' }}
+        onMouseEnter={(e) => {e.currentTarget.style.transform = 'translateY(-3px)';e.currentTarget.style.boxShadow = '0 18px 40px -16px rgba(10,31,21,.16)';e.currentTarget.style.borderColor = 'var(--line-2)';}}
+        onMouseLeave={(e) => {e.currentTarget.style.transform = '';e.currentTarget.style.boxShadow = '';e.currentTarget.style.borderColor = 'var(--line)';}}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+            <span style={{ fontFamily: 'var(--display)', fontSize: 13, color: 'var(--ink-3)', letterSpacing: '.04em' }}>{m.n}</span>
+            <span style={{ fontSize: 10.5, padding: '3px 9px', borderRadius: 99, background: bg, color: fg, fontWeight: 600, letterSpacing: '.02em' }}>{m.pill}</span>
+          </div>
+          <div style={{ fontFamily: 'var(--display)', fontSize: 22, fontWeight: 400, letterSpacing: '-.01em', lineHeight: 1.15, marginBottom: 8 }}>{m.t}</div>
+          <div style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.55 }}>{m.d}</div>
+        </div>;
+      })}
+    </div>
+  </section>;
+}
+
+/* ── SIMULATION EXAMPLES ── */
+function Simulation({ openModal }) {
+  const [tab, setTab] = useStateL(0);
+  const cases = [
+  { name: 'New User Cashback', seg: 'New Users', reward: '10% Cashback', kpis: [['Conversion lift', '+28%', 'up'], ['Margin impact', '−6%', 'down'], ['Break-even', '3.2 sess', ''], ['Risk level', 'Low', 'ok']], insight: 'Strong first-session conversion driver. Pair with a wallet pre-load to capture repeat behaviour by session 3.', color: 'emerald' },
+  { name: 'Dormant Win-back', seg: 'Dormant', reward: 'Wallet Preload ₹100', kpis: [['Reactivation prob.', '41%', 'up'], ['Margin impact', '−18%', 'down'], ['Recovery window', '2 mo', ''], ['Abuse risk', 'Medium', 'warn']], insight: 'Switch from single-use to spread distribution (₹25 across 4 sessions) — drops abuse risk to Low, holds reactivation.', color: 'amber' },
+  { name: 'Loyalty Rewards', seg: 'Engaged', reward: 'Reward Step-up', kpis: [['Retention lift', '+19%', 'up'], ['Margin impact', '−3%', 'ok'], ['Stickiness@S3', '+9%', 'up'], ['Risk level', 'Low', 'ok']], insight: 'Session 3 is the stickiness threshold. Increase reward progression after session 2, not at session 5.', color: 'blue' }];
+
+  const cur = cases[tab];
+  const tints = { emerald: ['var(--emerald-soft)', 'var(--emerald-2)', 'var(--emerald)'], amber: ['var(--amber-soft)', '#92400e', 'var(--amber)'], blue: ['var(--blue-soft)', 'var(--blue)', 'var(--blue)'] }[cur.color];
+  return <section className="sec" style={{ background: 'var(--bg-2)', maxWidth: 'none', padding: "50px 32px" }}>
+    <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+      <div className="sec-head reveal">
+        <div className="lp-eyebrow">AI Simulation</div>
+        <h2 className="sec-h">Simulate before <em>you spend.</em></h2>
+        <p className="sec-lede">Every offer modelled against your real segment behaviour. Three real examples from our pilot customers.</p>
+      </div>
+
+      <div className="reveal" style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 32, flexWrap: 'wrap' }}>
+        {cases.map((c, i) =>
+        <button key={i} onClick={() => setTab(i)} style={{ padding: '10px 20px', borderRadius: 99, border: '1px solid ' + (i === tab ? 'var(--ink)' : 'var(--line)'), background: i === tab ? 'var(--ink)' : '#fff', color: i === tab ? '#fff' : 'var(--ink-2)', fontSize: 13, fontWeight: 500, transition: 'all .15s', cursor: 'pointer' }}>
+            {c.name}
+          </button>
+        )}
+      </div>
+
+      <div className="reveal lp-glass" style={{ borderRadius: 24, padding: 32, maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, alignItems: 'center' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+            <span className="lp-pill" style={{ padding: '3px 10px', fontSize: 11, background: tints[0], color: tints[1], borderColor: 'transparent' }}>{cur.seg}</span>
+            <span className="lp-pill" style={{ padding: '3px 10px', fontSize: 11 }}>{cur.reward}</span>
+          </div>
+          <h3 style={{ fontFamily: 'var(--display)', fontSize: 38, fontWeight: 400, letterSpacing: '-.01em', lineHeight: 1.05, marginBottom: 24 }}>{cur.name}</h3>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 24 }}>
+            {cur.kpis.map((k, i) =>
+            <div key={i} style={{ padding: '14px 16px', borderRadius: 12, background: '#fff', border: '1px solid var(--line)' }}>
+                <div style={{ fontSize: 10.5, color: 'var(--ink-3)', letterSpacing: '.08em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 6 }}>{k[0]}</div>
+                <div style={{ fontFamily: 'var(--display)', fontSize: 24, letterSpacing: '-.01em', color: k[2] === 'up' || k[2] === 'ok' ? 'var(--emerald-2)' : k[2] === 'down' || k[2] === 'warn' ? 'var(--amber)' : 'var(--ink)' }}>{k[1]}</div>
+              </div>
+            )}
+          </div>
+
+          <div style={{ padding: '18px 20px', borderRadius: 14, background: 'linear-gradient(135deg,var(--emerald-soft),var(--mint-soft))', border: '1px solid rgba(52,211,153,.25)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <div style={{ width: 24, height: 24, borderRadius: 7, background: 'linear-gradient(135deg,var(--emerald),var(--mint))', display: 'grid', placeItems: 'center', color: '#fff', fontFamily: 'var(--display)', fontSize: 13 }}>✦</div>
+              <div style={{ fontSize: 10.5, letterSpacing: '.10em', textTransform: 'uppercase', color: 'var(--emerald-2)', fontWeight: 600 }}>AI Recommendation</div>
+            </div>
+            <div style={{ fontSize: 13.5, lineHeight: 1.6, color: '#0a3a26' }}>{cur.insight}</div>
+          </div>
+        </div>
+
+        {/* Right — visual */}
+        <div style={{ position: 'relative' }}>
+          <div style={{ padding: 24, borderRadius: 18, background: '#fff', border: '1px solid var(--line)', boxShadow: '0 20px 50px -20px rgba(10,31,21,.16)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>Outcome curve</div>
+              <span className="lp-pill ok"><span className="dot anim-pulse" />Live</span>
+            </div>
+            <SimCurve color={tints[2]} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginTop: 18, paddingTop: 16, borderTop: '1px solid var(--line)' }}>
+              <div><div style={{ fontSize: 10, color: 'var(--ink-3)' }}>Day 7</div><div style={{ fontWeight: 600, marginTop: 2 }}>+₹0.2L</div></div>
+              <div><div style={{ fontSize: 10, color: 'var(--ink-3)' }}>Day 30</div><div style={{ fontWeight: 600, marginTop: 2, color: 'var(--emerald-2)' }}>+₹0.8L</div></div>
+              <div><div style={{ fontSize: 10, color: 'var(--ink-3)' }}>Day 90</div><div style={{ fontWeight: 600, marginTop: 2, color: 'var(--emerald-2)' }}>+₹1.4L</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>;
+}
+
+function SimCurve({ color = "var(--emerald)" }) {
+  const pts = [2, 4, 7, 11, 16, 22, 29, 37, 46, 56, 67, 79, 92, 106, 121, 137, 154, 172, 191, 212];
+  const w = 420,h = 140,p = 4;
+  const max = Math.max(...pts);
+  const x = (i) => p + i / (pts.length - 1) * (w - 2 * p);
+  const y = (v) => h - p - v / max * (h - 2 * p);
+  const d = pts.map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');
+  return <svg viewBox={`0 0 ${w} ${h}`} width="100%" height={h}>
+    <defs><linearGradient id="simg" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity=".24" /><stop offset="100%" stopColor={color} stopOpacity="0" /></linearGradient></defs>
+    {[.33, .66].map((p, i) => <line key={i} x1="0" x2={w} y1={h * p} y2={h * p} stroke="var(--line)" strokeDasharray="2 4" />)}
+    <path d={`${d} L${x(pts.length - 1)} ${h - p} L${x(0)} ${h - p} Z`} fill="url(#simg)" />
+    <path d={d} fill="none" stroke={color} strokeWidth="2.4" strokeLinecap="round" />
+    <circle cx={x(pts.length - 1)} cy={y(pts[pts.length - 1])} r="5" fill={color} />
+  </svg>;
+}
+
+/* ── BENTO FEATURES ── */
+function Features() {
+  return <section className="sec">
+    <div className="sec-head reveal">
+      <div className="lp-eyebrow">Capabilities</div>
+      <h2 className="sec-h">Every lever that decides whether <em>an offer prints money.</em></h2>
+    </div>
+    <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gridAutoRows: 'minmax(180px,auto)', gap: 14, maxWidth: 1200, margin: '0 auto' }}>
+      {/* Hero feature — Reward Liability Calculator */}
+      <div style={{ gridColumn: 'span 2', gridRow: 'span 2', padding: 32, borderRadius: 22, background: 'linear-gradient(135deg,#0a1f15,#163a2a)', color: '#fff', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 80% 20%,rgba(52,211,153,.25),transparent 60%)' }} />
+        <div style={{ position: 'relative' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 10px', borderRadius: 99, background: 'rgba(52,211,153,.20)', color: 'var(--mint)', fontSize: 11, fontWeight: 600, marginBottom: 18 }}>Flagship</div>
+          <h3 style={{ fontFamily: 'var(--display)', fontSize: 36, fontWeight: 400, letterSpacing: '-.01em', lineHeight: 1.05, marginBottom: 10 }}>Reward Liability Calculator</h3>
+          <p style={{ fontSize: 14.5, color: 'rgba(255,255,255,.7)', lineHeight: 1.55, maxWidth: 380, marginBottom: 24 }}>Know exactly how much cashback you'll owe — by day, by segment, by reward state — before launch. Finance reviews go from days to minutes.</p>
+          <div style={{ padding: '20px 22px', borderRadius: 14, background: 'rgba(255,255,255,.06)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,.10)' }}>
+            <div style={{ fontSize: 10.5, letterSpacing: '.10em', textTransform: 'uppercase', opacity: .5, fontWeight: 600, marginBottom: 10 }}>Projected outstanding</div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 24, marginBottom: 14 }}>
+              <div><div style={{ fontSize: 10, opacity: .5 }}>Today</div><div style={{ fontFamily: 'var(--display)', fontSize: 30, color: 'var(--mint)', marginTop: 2 }}>₹<Counter to={48200} /></div></div>
+              <div style={{ fontSize: 11, opacity: .4, paddingBottom: 8 }}>→</div>
+              <div><div style={{ fontSize: 10, opacity: .5 }}>Day 30</div><div style={{ fontFamily: 'var(--display)', fontSize: 30, color: 'var(--mint)', marginTop: 2 }}>₹<Counter to={184000} /></div></div>
+              <div style={{ fontSize: 11, opacity: .4, paddingBottom: 8 }}>→</div>
+              <div><div style={{ fontSize: 10, opacity: .5 }}>Peak</div><div style={{ fontFamily: 'var(--display)', fontSize: 30, color: 'var(--mint)', marginTop: 2 }}>₹<Counter to={228000} /></div></div>
+            </div>
+            <Spark pts={[10, 18, 28, 40, 54, 70, 88, 108, 128, 148, 170, 184, 196, 210, 220, 228, 224, 212, 196, 178]} w={420} h={42} stroke="var(--mint)" fill="rgba(52,211,153,.14)" />
+          </div>
+        </div>
+      </div>
+
+      {[
+      { t: 'AI Campaign Intelligence', d: 'Reads your offer config + history, suggests the next move', icon: '✦', color: 'emerald' },
+      { t: 'Cashback Simulation', d: 'Tier curves, slabs, first-only triggers — modelled in seconds', icon: '%', color: 'blue' },
+      { t: 'Wallet Top-up Forecasting', d: 'Spread vs single use, abuse caps, expiry leakage', icon: '◐', color: 'amber' },
+      { t: 'Margin Protection Engine', d: 'Auto-flags offers that erode unit economics', icon: '⊕', color: 'rose' },
+      { t: 'Segment Insights', d: 'New, Dormant, Engaged — with behavioural priors', icon: '⚏', color: 'emerald' },
+      { t: 'Dormant Intelligence', d: 'Reactivation probability by tenure and last activity', icon: '◌', color: 'blue' },
+      { t: 'Overlap Detection', d: 'Catches segment × reward × activity collisions', icon: '⚠', color: 'amber' },
+      { t: 'Dynamic Reward Structures', d: 'Tiers, slabs, conditional rates, expiry windows', icon: '∿', color: 'rose' },
+      { t: 'Lifecycle Monitoring', d: 'Draft → review → approved → live → completed', icon: '◉', color: 'emerald' },
+      { t: 'Behavioural Triggers', d: 'First-charge, first-top-up, session-3 milestones', icon: '⚡', color: 'blue' }].
+      map((f, i) => {
+        const cmap = { emerald: ['var(--emerald-soft)', 'var(--emerald-2)'], blue: ['var(--blue-soft)', 'var(--blue)'], amber: ['var(--amber-soft)', '#92400e'], rose: ['var(--rose-soft)', 'var(--rose)'] };
+        const [bg, fg] = cmap[f.color];
+        return <div key={i} style={{ padding: 24, borderRadius: 18, border: '1px solid var(--line)', background: '#fff', transition: 'all .25s', cursor: 'pointer' }}
+        onMouseEnter={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 16px 36px -14px rgba(10,31,21,.14)';}}
+        onMouseLeave={(e) => {e.currentTarget.style.transform = '';e.currentTarget.style.boxShadow = '';}}>
+          <div style={{ width: 38, height: 38, borderRadius: 11, background: bg, color: fg, display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontSize: 18, marginBottom: 14 }}>{f.icon}</div>
+          <h3 style={{ fontFamily: 'var(--ui)', fontSize: 15.5, fontWeight: 600, letterSpacing: '-.01em', marginBottom: 6 }}>{f.t}</h3>
+          <p style={{ fontSize: 12.5, color: 'var(--ink-2)', lineHeight: 1.55 }}>{f.d}</p>
+        </div>;
+      })}
+    </div>
+  </section>;
+}
+
+/* ── WHO THIS IS BUILT FOR (replaces fake "Trusted By") ── */
+function WhoFor() {
+  const roles = [
+  { t: 'Growth teams', d: 'Forecast campaign ROI before sign-off', icon: '↑' },
+  { t: 'CRM teams', d: 'Plan retention offers that hold margin', icon: '⊙' },
+  { t: 'Retention marketers', d: 'Stop cannibalising existing paying users', icon: '∿' },
+  { t: 'D2C founders', d: 'See offer economics without a data team', icon: '◆' },
+  { t: 'Revenue teams', d: 'Tie every campaign to margin, not vanity metrics', icon: '%' },
+  { t: 'Loyalty managers', d: 'Design tiered programs that compound, not leak', icon: '★' },
+  { t: 'Product managers', d: 'Test reward mechanics before engineering ships them', icon: '⚙' },
+  { t: 'Performance marketers', d: 'Sync paid acquisition with retention math', icon: '⚡' }];
+
+  return <section className="sec" style={{ background: 'var(--bg-2)', maxWidth: 'none', padding: '100px 32px' }}>
+    <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+      <div className="sec-head reveal">
+        <div className="lp-eyebrow">Who this is for</div>
+        <h2 className="sec-h">If your job is to make <em>campaigns profitable</em> — this is for you.</h2>
+        <p className="sec-lede">D2C primary. Built to also serve fintech, subscription, food delivery, quick commerce, marketplaces, mobility, and consumer apps — any business where offers shape behaviour.</p>
+      </div>
+      <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}>
+        {roles.map((r, i) =>
+        <div key={i} style={{ padding: 24, borderRadius: 18, background: '#fff', border: '1px solid var(--line)', transition: 'all .25s' }}
+        onMouseEnter={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 16px 36px -14px rgba(10,31,21,.14)';}}
+        onMouseLeave={(e) => {e.currentTarget.style.transform = '';e.currentTarget.style.boxShadow = '';}}>
+            <div style={{ width: 34, height: 34, borderRadius: 10, background: 'var(--emerald-soft)', color: 'var(--emerald-2)', display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontSize: 17, marginBottom: 14 }}>{r.icon}</div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{r.t}</div>
+            <div style={{ fontSize: 12.5, color: 'var(--ink-2)', lineHeight: 1.5 }}>{r.d}</div>
+          </div>
+        )}
+      </div>
+
+      <div className="reveal" style={{ marginTop: 60 }}>
+        <div style={{ fontSize: 11, letterSpacing: '.10em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600, textAlign: 'center', marginBottom: 18 }}>Designed for these business categories</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 10 }}>
+          {['D2C brands', 'Ecommerce', 'Fintech', 'Subscription', 'Food delivery', 'Quick commerce', 'Mobility', 'Marketplaces', 'Loyalty ecosystems', 'Consumer apps'].map((c) =>
+          <span key={c} style={{ padding: '8px 16px', borderRadius: 99, background: '#fff', border: '1px solid var(--line)', fontSize: 13, color: 'var(--ink-2)', fontWeight: 500 }}>{c}</span>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>;
+}
+
+/* ── USER BASE IMPACT INTELLIGENCE — the new flagship section ── */
+function UserBaseImpact() {
+  return <section className="sec" style={{ padding: "50px 32px" }}>
+    <div className="sec-head reveal">
+      <div className="lp-eyebrow">User Base Impact Intelligence</div>
+      <h2 className="sec-h">An offer is never isolated.<br />
+        <em>It changes behaviour across your entire user base.</em>
+      </h2>
+      <p className="sec-lede">A 20% discount doesn't just attract new buyers — it migrates loyalists into a lower-margin cohort, trains regulars to wait for the next sale, and creates offer dependency. Most platforms only show the headline. We show the whole ripple.</p>
+    </div>
+
+    {/* Big composition: migration sankey-ish + two side cards */}
+    <div className="reveal" style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 18, marginBottom: 18 }}>
+      <div className="lp-glass" style={{ borderRadius: 22, padding: 32 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+          <div>
+            <div style={{ fontSize: 11, letterSpacing: '.10em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600, marginBottom: 6 }}>Cohort migration · 60 days post-launch</div>
+            <h3 style={{ fontFamily: 'var(--display)', fontSize: 30, fontWeight: 400, letterSpacing: '-.01em', lineHeight: 1.1 }}>Where users actually moved</h3>
+          </div>
+          <span className="lp-pill" style={{ background: 'var(--amber-soft)', color: '#92400e', borderColor: 'transparent' }}>⚠ 18% cannibalisation</span>
+        </div>
+        <MigrationFlow />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--line)' }}>
+          <KPI l="Incremental" v="+12,400" tone="ok" />
+          <KPI l="Cannibalised" v="−5,820" tone="warn" />
+          <KPI l="Net new users" v="+6,580" tone="ok" />
+          <KPI l="Margin drag" v="−4.2%" />
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <div className="lp-card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 9, background: 'var(--rose-soft)', color: 'var(--rose)', display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontSize: 14 }}>!</div>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--ink-2)' }}>Offer dependency risk</div>
+          </div>
+          <div style={{ fontFamily: 'var(--display)', fontSize: 32, letterSpacing: '-.01em', color: 'var(--rose)', lineHeight: 1 }}><Counter to={31} />%</div>
+          <div style={{ fontSize: 12.5, color: 'var(--ink-2)', marginTop: 8, lineHeight: 1.55 }}>of loyal users now wait for the offer instead of buying at full price. This compounds quarter-over-quarter.</div>
+        </div>
+        <div className="lp-card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 9, background: 'var(--emerald-soft)', color: 'var(--emerald-2)', display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontSize: 14 }}>↑</div>
+            <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--ink-2)' }}>Retention uplift</div>
+          </div>
+          <div style={{ fontFamily: 'var(--display)', fontSize: 32, letterSpacing: '-.01em', color: 'var(--emerald-2)', lineHeight: 1 }}>+<Counter to={14} />%</div>
+          <div style={{ fontSize: 12.5, color: 'var(--ink-2)', marginTop: 8, lineHeight: 1.55 }}>among dormant users reactivated by the offer — but only 41% remain active past day 60.</div>
+        </div>
+      </div>
+    </div>
+
+    {/* Bottom row: 3 small panels */}
+    <div className="reveal" style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+      <ImpactPanel
+        title="Repeat purchase curves"
+        sub="By cohort, post-offer"
+        chart={<RepeatCurves />}
+        note="Discount-attracted users buy once, then drop 62% by day 30. Reward-attracted users hold at 48%." />
+      
+      <ImpactPanel
+        title="Margin by cohort"
+        sub="Discount-seekers vs full-price"
+        chart={<MarginBars />}
+        note="Your top 20% paying users now show 14% lower realised margin. Hidden cost of broad-stroke discounting." />
+      
+      <ImpactPanel
+        title="Long-term LTV impact"
+        sub="6-month projection"
+        chart={<LTVTrack />}
+        note="Loyalty offers compound LTV. Flat discounts flatten the curve. Both feel the same in week 1." />
+      
+    </div>
+
+    {/* Quote bar */}
+    <div className="reveal" style={{ maxWidth: 900, margin: '72px auto 0', padding: '32px 40px', borderRadius: 20, background: 'linear-gradient(135deg,#0a1f15,#163a2a)', color: '#fff', textAlign: 'center' }}>
+      <div style={{ fontFamily: 'var(--display)', fontStyle: 'italic', fontSize: 24, fontWeight: 400, letterSpacing: '-.01em', lineHeight: 1.4, color: 'var(--mint-soft)' }}>"The same offer can be profitable for one cohort and a margin trap for another. The math has to be cohort-aware — or it's not really math."</div>
+    </div>
+  </section>;
+}
+
+function KPI({ l, v, tone }) {
+  const color = tone === 'ok' ? 'var(--emerald-2)' : tone === 'warn' ? 'var(--amber)' : 'var(--ink)';
+  return <div>
+    <div style={{ fontSize: 10.5, color: 'var(--ink-3)', letterSpacing: '.08em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 5 }}>{l}</div>
+    <div style={{ fontFamily: 'var(--display)', fontSize: 24, letterSpacing: '-.01em', color }}>{v}</div>
+  </div>;
+}
+
+function ImpactPanel({ title, sub, chart, note }) {
+  return <div className="lp-card" style={{ padding: 22 }}>
+    <div style={{ marginBottom: 6 }}>
+      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>{sub}</div>
+      <div style={{ fontFamily: 'var(--display)', fontSize: 20, fontWeight: 400, letterSpacing: '-.01em', marginTop: 4 }}>{title}</div>
+    </div>
+    <div style={{ margin: '14px 0', height: 110 }}>{chart}</div>
+    <div style={{ fontSize: 12, color: 'var(--ink-2)', lineHeight: 1.55, paddingTop: 14, borderTop: '1px solid var(--line)' }}>{note}</div>
+  </div>;
+}
+
+/* Migration "flow" — five vertical bars (before vs after) connected with ribbons */
+function MigrationFlow() {
+  const w = 620,h = 200;
+  const cohorts = [
+  { name: 'New', before: 24, after: 32, color: 'var(--emerald)' },
+  { name: 'Engaged', before: 36, after: 30, color: 'var(--mint)' },
+  { name: 'Loyal', before: 18, after: 14, color: 'var(--blue)' },
+  { name: 'Dormant', before: 14, after: 18, color: 'var(--amber)' },
+  { name: 'Discount-seekers', before: 8, after: 24, color: 'var(--rose)' }];
+
+  const total = cohorts.reduce((a, c) => a + c.after, 0);
+  return <svg viewBox={`0 0 ${w} ${h + 44}`} width="100%" style={{ display: 'block' }}>
+    <text x={20} y={14} fontSize="10" fill="var(--ink-3)" fontWeight="600" letterSpacing=".06em">BEFORE OFFER</text>
+    <text x={w - 110} y={14} fontSize="10" fill="var(--ink-3)" fontWeight="600" letterSpacing=".06em">AFTER 60 DAYS</text>
+    {cohorts.map((c, i) => {
+      const yBefore = 24 + i * 36;const wBefore = c.before * 4;
+      const yAfter = 24 + i * 36;const wAfter = c.after * 4;
+      return <g key={i}>
+        <rect x={20} y={yBefore} width={wBefore} height={20} rx="4" fill={c.color} opacity=".35" />
+        <rect x={w - 20 - wAfter} y={yAfter} width={wAfter} height={20} rx="4" fill={c.color} />
+        <text x={20 + wBefore + 6} y={yBefore + 14} fontSize="11" fill="var(--ink-2)" fontWeight="500">{c.name}</text>
+        <text x={w - 30 - wAfter - 4} y={yAfter + 14} fontSize="11" fill="var(--ink-2)" fontWeight="500" textAnchor="end">{c.after}%</text>
+        {/* Connecting ribbon */}
+        <path d={`M ${20 + wBefore} ${yBefore + 10} C ${w / 2} ${yBefore + 10}, ${w / 2} ${yAfter + 10}, ${w - 20 - wAfter} ${yAfter + 10}`}
+        stroke={c.color} strokeOpacity=".22" strokeWidth={Math.min(wBefore, wAfter)} fill="none" />
+      </g>;
+    })}
+  </svg>;
+}
+
+function RepeatCurves() {
+  const w = 260,h = 110,p = 4;
+  const reward = [100, 92, 84, 78, 72, 68, 64, 60, 57, 54, 51, 49, 47, 46, 45];
+  const discount = [100, 76, 58, 46, 38, 33, 30, 28, 27, 26, 25, 24, 24, 24, 23];
+  const x = (i) => p + i / (reward.length - 1) * (w - 2 * p);
+  const y = (v) => h - p - v / 100 * (h - 2 * p);
+  const path = (arr) => arr.map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');
+  return <svg viewBox={`0 0 ${w} ${h + 18}`} width="100%" height={h + 18}>
+    <path d={path(reward)} fill="none" stroke="var(--emerald)" strokeWidth="2" strokeLinecap="round" />
+    <path d={path(discount)} fill="none" stroke="var(--rose)" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 3" />
+    <circle cx={x(reward.length - 1)} cy={y(reward[reward.length - 1])} r="3" fill="var(--emerald)" />
+    <circle cx={x(discount.length - 1)} cy={y(discount[discount.length - 1])} r="3" fill="var(--rose)" />
+    <text x={4} y={h + 14} fontSize="9" fill="var(--ink-3)">Day 1</text>
+    <text x={w - 22} y={h + 14} fontSize="9" fill="var(--ink-3)">Day 30</text>
+  </svg>;
+}
+
+function MarginBars() {
+  const cohorts = [
+  { l: 'Top 20% loyal', v: .62, d: 'Before' },
+  { l: 'Top 20% loyal', v: .48, d: 'After' },
+  { l: 'Engaged', v: .41, d: 'Before' },
+  { l: 'Engaged', v: .38, d: 'After' },
+  { l: 'Discount-seekers', v: .18, d: 'Before' },
+  { l: 'Discount-seekers', v: .12, d: 'After' }];
+
+  return <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: '100%', padding: '10px 0' }}>
+    {cohorts.map((c, i) => <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+      <div style={{ width: '100%', height: c.v * 100 + 'px', background: c.d === 'Before' ? 'var(--bg-3)' : 'var(--emerald)', borderRadius: 4, opacity: c.d === 'Before' ? .7 : 1, transition: 'height .6s' }} />
+      <div style={{ fontSize: 9, color: 'var(--ink-3)', fontWeight: 500 }}>{c.d[0]}</div>
+    </div>)}
+  </div>;
+}
+
+function LTVTrack() {
+  const w = 260,h = 110,p = 4;
+  const loyalty = [100, 108, 118, 130, 144, 160, 178, 198, 220, 244, 270, 298, 328, 360, 394];
+  const flat = [100, 106, 110, 112, 113, 113, 112, 111, 110, 109, 108, 107, 106, 105, 104];
+  const max = Math.max(...loyalty);
+  const x = (i) => p + i / (loyalty.length - 1) * (w - 2 * p);
+  const y = (v) => h - p - v / max * (h - 2 * p);
+  const path = (arr) => arr.map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');
+  return <svg viewBox={`0 0 ${w} ${h + 18}`} width="100%" height={h + 18}>
+    <defs><linearGradient id="ltvg" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="var(--emerald)" stopOpacity=".24" /><stop offset="100%" stopColor="var(--emerald)" stopOpacity="0" /></linearGradient></defs>
+    <path d={`${path(loyalty)} L${x(loyalty.length - 1)} ${h - p} L${x(0)} ${h - p} Z`} fill="url(#ltvg)" />
+    <path d={path(loyalty)} fill="none" stroke="var(--emerald)" strokeWidth="2" strokeLinecap="round" />
+    <path d={path(flat)} fill="none" stroke="var(--ink-3)" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="3 3" />
+    <text x={4} y={h + 14} fontSize="9" fill="var(--ink-3)">M0</text>
+    <text x={w - 22} y={h + 14} fontSize="9" fill="var(--ink-3)">M6</text>
+  </svg>;
+}
+
+/* ── HOW IT WORKS ── */
+function HowItWorks() {
+  return <section className="sec">
+    <div className="sec-head reveal">
+      <div className="lp-eyebrow">How it works</div>
+      <h2 className="sec-h">Three steps. <em>One profitable launch.</em></h2>
+    </div>
+    <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, maxWidth: 1100, margin: '0 auto', position: 'relative' }}>
+      {/* Connecting line */}
+      <div style={{ position: 'absolute', top: 60, left: '16%', right: '16%', height: 1, background: 'linear-gradient(90deg,transparent,var(--emerald) 20%,var(--emerald) 80%,transparent)', opacity: .3, pointerEvents: 'none' }} />
+      {[
+      { n: '01', t: 'Configure', d: 'Pick segment, reward type, and rates. Or describe the goal — AI drafts it.', icon: '⚙' },
+      { n: '02', t: 'Simulate', d: 'Drop in real transactions. Watch ROI, liability, and break-even update live.', icon: '∿' },
+      { n: '03', t: 'Launch', d: "Only what passes profitability gates. Ship to live with auto-conflict checks.", icon: '↑' }].
+      map((s, i) =>
+      <div key={i} style={{ position: 'relative', padding: '32px 28px', borderRadius: 20, background: '#fff', border: '1px solid var(--line)', textAlign: 'center' }}>
+          <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'linear-gradient(135deg,var(--emerald-soft),var(--mint-soft))', display: 'grid', placeItems: 'center', margin: '0 auto 18px', fontFamily: 'var(--display)', fontSize: 32, color: 'var(--emerald-2)', border: '1px solid rgba(52,211,153,.20)' }}>{s.icon}</div>
+          <div style={{ fontFamily: 'var(--display)', fontSize: 14, color: 'var(--ink-3)', letterSpacing: '.04em', marginBottom: 6 }}>{s.n}</div>
+          <h3 style={{ fontFamily: 'var(--display)', fontSize: 26, fontWeight: 400, letterSpacing: '-.01em', marginBottom: 8 }}>{s.t}</h3>
+          <p style={{ fontSize: 13.5, color: 'var(--ink-2)', lineHeight: 1.55 }}>{s.d}</p>
+        </div>
+      )}
+    </div>
+  </section>;
+}
+
+/* ── FINAL CTA ── */
+function FinalCTA({ openModal }) {
+  return <section style={{ padding: '80px 32px 100px' }}>
+    <div className="reveal" style={{ maxWidth: 1100, margin: '0 auto', padding: '80px 60px', borderRadius: 32, background: 'linear-gradient(135deg,#0a1f15,#0a3a26,#0a1f15)', color: '#fff', position: 'relative', overflow: 'hidden', textAlign: 'center' }}>
+      <div style={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle,rgba(52,211,153,.30),transparent 65%)', filter: 'blur(40px)' }} />
+      <div style={{ position: 'absolute', bottom: -100, left: -100, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle,rgba(59,130,246,.20),transparent 65%)', filter: 'blur(40px)' }} />
+      <div style={{ position: 'relative' }}>
+        <div className="lp-pill" style={{ marginBottom: 24, background: 'rgba(52,211,153,.15)', color: 'var(--mint)', borderColor: 'rgba(52,211,153,.25)' }}>
+          <span className="dot anim-pulse" style={{ background: 'var(--mint)' }} />
+          Limited pilot · Q3 2026
+        </div>
+        <h2 style={{ fontSize: 'clamp(36px,5vw,60px)', fontWeight: 600, letterSpacing: '-.03em', lineHeight: 1.04, marginBottom: 14 }}>
+          Every offer impacts margin.<br />
+          <span style={{ fontFamily: 'var(--display)', fontStyle: 'italic', fontWeight: 400, background: 'linear-gradient(120deg,var(--mint),var(--emerald-soft))', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>Predict it before you launch.</span>
+        </h2>
+        <p style={{ fontSize: 16, color: 'rgba(255,255,255,.65)', maxWidth: 520, margin: '0 auto 32px', lineHeight: 1.55 }}>Built for teams that care about profitable growth — not vanity campaigns.</p>
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button className="lp-btn accent lg" onClick={openModal}>Request early access <span style={{ opacity: .7 }}>→</span></button>
+          <button className="lp-btn lg" style={{ background: 'transparent', color: '#fff', borderColor: 'rgba(255,255,255,.20)' }} onClick={openModal}>Book strategy call</button>
+        </div>
+      </div>
+    </div>
+  </section>;
+}
+
+function Footer({ brand }) {
+  return <footer style={{ padding: '40px 32px', borderTop: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20, fontSize: 12.5, color: 'var(--ink-3)', maxWidth: 1280, margin: '0 auto' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div className="lp-logo-mark" style={{ width: 24, height: 24, fontSize: 13, borderRadius: 7 }}>{(brand || 'P').charAt(0)}</div>
+      <span style={{ fontWeight: 500, color: 'var(--ink-2)' }}>{brand || 'ProfitGrid'} · Campaign Intelligence</span>
+      <span>·</span>
+      <span>© 2026</span>
+    </div>
+    <div style={{ display: 'flex', gap: 24 }}>
+      <a>Privacy</a><a>Terms</a><a>Security</a><a>Contact</a>
+    </div>
+  </footer>;
+}
+
+Object.assign(window, { Problem, Platform, Simulation, Features, WhoFor, UserBaseImpact, HowItWorks, FinalCTA, Footer });
+
+/* "The Hidden Impact of Every Offer" — flagship intelligence section.
+   Visual cohort migration, profitability heatmap, reward burn, dependency curves. */
+const { useState: useStateHI, useEffect: useEffectHI } = React;
+
+function HiddenImpact() {
+  const [tab, setTab] = useStateHI(0);
+  const stories = [
+  { k: 'discount', label: 'Discounts',
+    head: 'A 20% discount migrates loyalists into a lower-margin cohort.',
+    body: 'Within 60 days, 18% of full-price buyers shift to discount-only behaviour. Headline conversions look strong. Realised margin quietly drops.',
+    mod: 'migration' },
+  { k: 'cashback', label: 'Cashback',
+    head: 'Cashback compounds — both retention and liability.',
+    body: 'Outstanding reward balance grows non-linearly. Without expiry intelligence, your "successful" campaign becomes a balance-sheet line item finance discovers at quarter-end.',
+    mod: 'burn' },
+  { k: 'loyalty', label: 'Loyalty rewards',
+    head: 'Loyalty creates retention — or trains users to wait.',
+    body: 'Step-up structures lift LTV by +24% on average. Flat repeated discounts create offer dependency: 31% of frequent users buy only when offered. Both feel identical in week 1.',
+    mod: 'dependency' },
+  { k: 'cannibal', label: 'Cannibalisation',
+    head: 'Repeated offers cannibalise existing paying customers.',
+    body: '70% of "incremental" revenue from broad-stroke discounts comes from users who would have purchased anyway. Net new growth is a fraction of headline lift.',
+    mod: 'heatmap' }];
+
+  const cur = stories[tab];
+
+  return <section className="sec" style={{ background: 'linear-gradient(180deg,var(--bg-2),#fff 40%)', maxWidth: 'none', padding: "50px 32px" }}>
+    <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+      <div className="sec-head reveal">
+        <div className="lp-eyebrow">Intelligence layer</div>
+        <h2 className="sec-h">The hidden impact of <em>every offer.</em></h2>
+        <p className="sec-lede">Direct conversions are just the surface. Every reward changes behaviour, shifts margins, and reshapes your customer base — usually invisibly. Here's what most platforms hide.</p>
+      </div>
+
+      {/* Tabbed narrative */}
+      <div className="reveal" style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 32, flexWrap: 'wrap' }}>
+        {stories.map((s, i) =>
+        <button key={s.k} onClick={() => setTab(i)} style={{ padding: '10px 20px', borderRadius: 99, border: '1px solid ' + (i === tab ? 'var(--ink)' : 'var(--line)'), background: i === tab ? 'var(--ink)' : '#fff', color: i === tab ? '#fff' : 'var(--ink-2)', fontSize: 13, fontWeight: 500, transition: 'all .15s', cursor: 'pointer' }}>{s.label}</button>
+        )}
+      </div>
+
+      <div className="reveal lp-glass" style={{ borderRadius: 24, padding: 32, maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 36, alignItems: 'center' }}>
+        <div>
+          <div style={{ fontSize: 11, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--emerald-2)', fontWeight: 600, marginBottom: 12 }}>Story {tab + 1} of {stories.length}</div>
+          <h3 style={{ fontFamily: 'var(--display)', fontSize: 36, fontWeight: 400, letterSpacing: '-.01em', lineHeight: 1.08, marginBottom: 18 }}>{cur.head}</h3>
+          <p style={{ fontSize: 15, color: 'var(--ink-2)', lineHeight: 1.65, marginBottom: 24 }}>{cur.body}</p>
+          <div style={{ padding: '14px 16px', borderRadius: 12, background: 'rgba(255,255,255,.5)', border: '1px solid var(--line)' }}>
+            <div style={{ fontSize: 10.5, letterSpacing: '.10em', textTransform: 'uppercase', color: 'var(--ink-3)', fontWeight: 600, marginBottom: 6 }}>What ProfitGrid does about it</div>
+            <div style={{ fontSize: 13, lineHeight: 1.55, color: 'var(--ink-2)' }}>
+              {cur.k === 'discount' && 'Cohort migration analysis surfaces every shift before the next campaign launches.'}
+              {cur.k === 'cashback' && 'Reward liability calculator forecasts outstanding balance day-by-day, by segment, by state.'}
+              {cur.k === 'loyalty' && 'Offer dependency curves quantify how much retention is voluntary vs. offer-conditional.'}
+              {cur.k === 'cannibal' && 'Incremental vs. cannibalised growth split for every campaign — pre-launch.'}
+            </div>
+          </div>
+        </div>
+        <div style={{ position: 'relative' }}>
+          {cur.mod === 'migration' && <MigrationViz />}
+          {cur.mod === 'burn' && <BurnViz />}
+          {cur.mod === 'dependency' && <DependencyViz />}
+          {cur.mod === 'heatmap' && <CannibalViz />}
+        </div>
+      </div>
+
+      {/* Intelligence module grid */}
+      <div className="sec-head reveal" style={{ marginTop: 96, marginBottom: 32 }}>
+        <div className="lp-eyebrow">Intelligence modules</div>
+        <h3 className="sec-h" style={{ fontSize: 'clamp(28px,3.6vw,42px)' }}>The complete <em>economics terminal</em> for offers.</h3>
+      </div>
+      <div className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 14, maxWidth: 1240, margin: '0 auto' }}>
+        {INTEL_MODULES.map((m, i) => <IntelCard key={i} m={m} />)}
+      </div>
+
+      {/* Manifesto strip */}
+      <div className="reveal" style={{ marginTop: 80, maxWidth: 920, marginLeft: 'auto', marginRight: 'auto' }}>
+        <div style={{ padding: '40px 44px', borderRadius: 22, background: 'linear-gradient(135deg,#0a1f15,#163a2a)', color: '#fff', textAlign: 'left' }}>
+          <div style={{ fontSize: 11, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--mint)', fontWeight: 600, marginBottom: 18 }}>Operating principles</div>
+          <div style={{ display: 'grid', gap: 10 }}>
+            {['Offers should not be launched based on assumptions.', 'Every reward has a behavioural and financial consequence.', 'Campaigns should be simulated before they are funded.', 'Growth without profitability is fragile.', 'Retention campaigns should be economically intelligent.'].map((t, i) =>
+            <div key={i} style={{ fontFamily: 'var(--display)', fontStyle: 'italic', fontSize: 22, fontWeight: 400, letterSpacing: '-.005em', lineHeight: 1.35, color: 'rgba(255,255,255,.92)', display: 'flex', gap: 14 }}>
+                <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--mint)', paddingTop: 8, fontStyle: 'normal' }}>{String(i + 1).padStart(2, '0')}</span>
+                <span>{t}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>;
+}
+
+const INTEL_MODULES = [
+{ t: 'Offer Simulation Engine', d: 'Run any reward shape against your live behaviour data in under 5s', icon: '∿', color: 'emerald' },
+{ t: 'ROI Forecasting', d: 'Net P&L per offer, per cohort, projected with confidence intervals', icon: '%', color: 'emerald' },
+{ t: 'Reward Liability Calculator', d: 'Outstanding balance forecasted day-by-day, segment-by-segment', icon: '◐', color: 'blue' },
+{ t: 'Margin Impact Analysis', d: 'Realised margin shift across paying vs. discount-seeking cohorts', icon: '⊕', color: 'amber' },
+{ t: 'Cannibalisation Analysis', d: 'Incremental vs. organic growth split — pre-launch and post-launch', icon: '⇄', color: 'rose' },
+{ t: 'Segment Overlap Detection', d: 'Catches segment × reward × activity collisions automatically', icon: '⊗', color: 'amber' },
+{ t: 'Campaign Conflict Detection', d: 'Reward stacking risk surfaced before two offers go live together', icon: '⚠', color: 'rose' },
+{ t: 'Redemption Behaviour Prediction', d: 'Expected redemption rate and timing per cohort', icon: '↗', color: 'blue' },
+{ t: 'Repeat Usage Probability', d: 'Day-N return likelihood modelled from your historical patterns', icon: '↻', color: 'emerald' },
+{ t: 'User Cohort Intelligence', d: 'New, Engaged, Loyal, Dormant, Discount-seeker — auto-classified', icon: '⚏', color: 'emerald' },
+{ t: 'User Migration Analysis', d: 'Where users moved across cohorts after each campaign', icon: '⇉', color: 'blue' },
+{ t: 'Long-term Profitability Forecasting', d: '6-month LTV projection by reward structure', icon: '∞', color: 'emerald' },
+{ t: 'Retention Impact Modeling', d: 'Voluntary retention vs. offer-conditional retention quantified', icon: '⟲', color: 'amber' },
+{ t: 'Loyalty Behaviour Intelligence', d: 'Tier progression, threshold sensitivity, drop-off patterns', icon: '★', color: 'amber' },
+{ t: 'Reward Abuse Detection', d: 'Pattern recognition on sim transactions — flag exploitation paths', icon: '!', color: 'rose' },
+{ t: 'Break-even Timeline Prediction', d: 'Day-N when each cohort recoups the reward cost', icon: '≈', color: 'blue' },
+{ t: 'Wallet Economics Intelligence', d: 'Pre-load distribution, slab cashback, abuse caps modelled together', icon: '◫', color: 'emerald' },
+{ t: 'Cashback Burn Analysis', d: 'Outstanding-to-issued ratio, expiry curve, exposure peaks', icon: '⚡', color: 'amber' },
+{ t: 'Reward Expiry Forecasting', d: 'How much will quietly expire — and when to nudge', icon: '⌛', color: 'blue' },
+{ t: 'Offer Fatigue Detection', d: 'Diminishing-return signals on repeated cohort exposures', icon: '⌇', color: 'rose' },
+{ t: 'Campaign Dependency Risk', d: '% of revenue conditional on active offers being live', icon: '⚭', color: 'rose' },
+{ t: 'Behavioural Trigger Intelligence', d: 'First-purchase, milestone, lapse-recovery triggers mapped', icon: '⚡', color: 'emerald' },
+{ t: 'Scenario Testing Engine', d: 'A/B/C reward structures side-by-side, modelled live', icon: '≣', color: 'blue' },
+{ t: 'AI Reward Recommendations', d: '"Move tier 3 to session 2 for +9% retention" — explained', icon: '✦', color: 'emerald' },
+{ t: 'AI Optimization Suggestions', d: 'Continuous nudges as your live data evolves', icon: '⊙', color: 'emerald' },
+{ t: 'Dynamic Reward Structures', d: 'Tiers, slabs, conditional rates, expiry windows — composable', icon: '⌬', color: 'amber' },
+{ t: 'Offer Lifecycle Tracking', d: 'Draft → review → approved → live → completed states', icon: '◉', color: 'emerald' },
+{ t: 'Campaign Economics Dashboard', d: 'Live spend, liability, ROI in one Bloomberg-style view', icon: '⊞', color: 'blue' },
+{ t: 'User Base Impact Forecasting', d: 'Whole-portfolio effect of a campaign on the broader ecosystem', icon: '⬢', color: 'amber' }];
+
+
+function IntelCard({ m }) {
+  const cmap = { emerald: ['var(--emerald-soft)', 'var(--emerald-2)'], blue: ['var(--blue-soft)', 'var(--blue)'], amber: ['var(--amber-soft)', '#92400e'], rose: ['var(--rose-soft)', 'var(--rose)'] };
+  const [bg, fg] = cmap[m.color];
+  return <div style={{ padding: 18, borderRadius: 14, border: '1px solid var(--line)', background: '#fff', transition: 'all .25s', cursor: 'pointer' }}
+  onMouseEnter={(e) => {e.currentTarget.style.transform = 'translateY(-2px)';e.currentTarget.style.boxShadow = '0 14px 32px -14px rgba(10,31,21,.14)';}}
+  onMouseLeave={(e) => {e.currentTarget.style.transform = '';e.currentTarget.style.boxShadow = '';}}>
+    <div style={{ width: 32, height: 32, borderRadius: 9, background: bg, color: fg, display: 'grid', placeItems: 'center', fontFamily: 'var(--display)', fontSize: 16, marginBottom: 12 }}>{m.icon}</div>
+    <div style={{ fontSize: 13.5, fontWeight: 600, letterSpacing: '-.005em', marginBottom: 4 }}>{m.t}</div>
+    <div style={{ fontSize: 12, color: 'var(--ink-2)', lineHeight: 1.5 }}>{m.d}</div>
+  </div>;
+}
+
+/* ── Visualisations ── */
+function MigrationViz() {
+  const w = 520,h = 320;
+  const cohorts = [
+  { n: 'Loyal', c1: '#059669', c2: '#fbbf24', b: 60, a: 42 },
+  { n: 'Engaged', c1: '#34d399', c2: '#34d399', b: 48, a: 50 },
+  { n: 'New', c1: '#3b82f6', c2: '#fbbf24', b: 32, a: 46 },
+  { n: 'Discount-seeker', c1: '#e11d48', c2: '#e11d48', b: 18, a: 38 }];
+
+  return <svg viewBox={`0 0 ${w} ${h}`} width="100%" style={{ display: 'block' }}>
+    <text x={20} y={20} fontSize="10" fill="var(--ink-3)" fontWeight="600" letterSpacing=".10em">BEFORE</text>
+    <text x={w - 90} y={20} fontSize="10" fill="var(--ink-3)" fontWeight="600" letterSpacing=".10em">AFTER 60 DAYS</text>
+    {cohorts.map((c, i) => {
+      const y1 = 40 + i * 64,y2 = 40 + i * 64;
+      return <g key={i}>
+        <rect x={20} y={y1} width={c.b * 3} height={36} rx={6} fill={c.c1} opacity=".25" />
+        <rect x={w - 20 - c.a * 3} y={y2} width={c.a * 3} height={36} rx={6} fill={c.c2} />
+        <text x={26 + c.b * 3} y={y1 + 22} fontSize="12" fill="var(--ink-2)" fontWeight="500">{c.n}</text>
+        <text x={w - 26 - c.a * 3} y={y2 + 22} fontSize="12" fill="var(--ink-2)" fontWeight="500" textAnchor="end">{c.a}%</text>
+        <path d={`M ${20 + c.b * 3} ${y1 + 18} C ${w / 2} ${y1 + 18}, ${w / 2} ${y2 + 18}, ${w - 20 - c.a * 3} ${y2 + 18}`}
+        stroke={c.c2} strokeOpacity=".30" strokeWidth={Math.min(c.b, c.a) * 1.5} fill="none" />
+      </g>;
+    })}
+  </svg>;
+}
+
+function BurnViz() {
+  const w = 520,h = 280,p = 20;
+  const issued = [20, 40, 68, 92, 118, 150, 182, 210, 234, 256, 278, 298, 316, 332, 346, 358, 366, 372, 376, 378];
+  const out = [18, 36, 60, 78, 98, 124, 148, 172, 192, 208, 222, 234, 244, 250, 254, 256, 254, 250, 244, 236];
+  const exp = [0, 2, 4, 8, 12, 18, 24, 30, 38, 46, 54, 60, 64, 68, 72, 74, 76, 78, 80, 82];
+  const m = Math.max(...issued);
+  const x = (i) => p + i / (issued.length - 1) * (w - 2 * p);
+  const y = (v) => h - p - v / m * (h - 2 * p);
+  const path = (arr) => arr.map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');
+  return <svg viewBox={`0 0 ${w} ${h + 24}`} width="100%" style={{ display: 'block' }}>
+    <defs><linearGradient id="hib" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#e11d48" stopOpacity=".22" /><stop offset="100%" stopColor="#e11d48" stopOpacity="0" /></linearGradient></defs>
+    {[.25, .5, .75].map((q, i) => <line key={i} x1="0" x2={w} y1={h * q} y2={h * q} stroke="var(--line)" strokeDasharray="2 4" />)}
+    <path d={`${path(out)} L${x(out.length - 1)} ${h - p} L${x(0)} ${h - p} Z`} fill="url(#hib)" />
+    <path d={path(issued)} fill="none" stroke="var(--ink-3)" strokeWidth="1.5" strokeDasharray="3 3" />
+    <path d={path(out)} fill="none" stroke="#e11d48" strokeWidth="2.5" strokeLinecap="round" />
+    <path d={path(exp)} fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeDasharray="4 3" />
+    <g fontSize="10" fill="var(--ink-3)">
+      <text x={20} y={h + 18}>Day 1</text>
+      <text x={w - 50} y={h + 18}>Day 90</text>
+    </g>
+    <g transform={`translate(${w - 180},20)`} fontSize="10">
+      <rect x={-6} y={-12} width={186} height={62} rx={8} fill="#fff" stroke="var(--line)" />
+      <line x1={2} y1={0} x2={20} y2={0} stroke="#e11d48" strokeWidth="2" /><text x={26} y={3} fill="var(--ink-2)">Outstanding</text>
+      <line x1={2} y1={16} x2={20} y2={16} stroke="var(--ink-3)" strokeDasharray="3 3" /><text x={26} y={19} fill="var(--ink-2)">Issued</text>
+      <line x1={2} y1={32} x2={20} y2={32} stroke="#f59e0b" strokeDasharray="4 3" /><text x={26} y={35} fill="var(--ink-2)">Expired</text>
+    </g>
+  </svg>;
+}
+
+function DependencyViz() {
+  const w = 520,h = 280;
+  const series = [12, 18, 22, 28, 32, 36, 39, 42, 44, 45, 46, 46, 45, 44, 42, 40, 38, 36, 34, 32];
+  const max = Math.max(...series),p = 20;
+  const x = (i) => p + i / (series.length - 1) * (w - 2 * p);
+  const y = (v) => h - p - v / 50 * (h - 2 * p);
+  const path = series.map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join(' ');
+  return <svg viewBox={`0 0 ${w} ${h + 24}`} width="100%" style={{ display: 'block' }}>
+    <defs><linearGradient id="hid" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#d97706" stopOpacity=".22" /><stop offset="100%" stopColor="#d97706" stopOpacity="0" /></linearGradient></defs>
+    {[.25, .5, .75].map((q, i) => <line key={i} x1="0" x2={w} y1={h * q} y2={h * q} stroke="var(--line)" strokeDasharray="2 4" />)}
+    <line x1={x(10)} y1={p} x2={x(10)} y2={h - p} stroke="var(--rose)" strokeWidth="1" strokeDasharray="3 3" />
+    <text x={x(10) + 6} y={p + 12} fontSize="10" fill="var(--rose)" fontWeight="600">Saturation point</text>
+    <path d={`${path} L${x(series.length - 1)} ${h - p} L${x(0)} ${h - p} Z`} fill="url(#hid)" />
+    <path d={path} fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" />
+    <circle cx={x(10)} cy={y(46)} r="5" fill="#d97706" />
+    <g fontSize="10" fill="var(--ink-3)">
+      <text x={20} y={h + 18}>Offer #1</text>
+      <text x={w - 60} y={h + 18}>Offer #20</text>
+      <text x={4} y={y(50) + 3}>50%</text>
+      <text x={4} y={y(25) + 3}>25%</text>
+      <text x={4} y={y(0) + 3}>0%</text>
+    </g>
+  </svg>;
+}
+
+function CannibalViz() {
+  const rows = ['New users', 'Engaged', 'Loyal', 'Dormant', 'Discount-seeker'];
+  const cols = ['Discount 10%', 'Discount 20%', 'Cashback', 'Coupon', 'Loyalty', 'Pre-load'];
+  const grid = [
+  [.92, .75, .65, .45, .55, .40],
+  [.65, .45, .55, .30, .70, .55],
+  [.25, .12, .40, .20, .85, .65],
+  [.55, .78, .60, .50, .40, .85],
+  [.18, .08, .22, .15, .20, .30]];
+
+  return <div style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid var(--line)', background: '#fff' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '120px repeat(6,1fr)', fontSize: 9.5, color: 'var(--ink-3)', letterSpacing: '.04em', fontWeight: 600, textTransform: 'uppercase', background: 'var(--bg-2)', borderBottom: '1px solid var(--line)' }}>
+      <div style={{ padding: '10px 12px' }}>Cohort \ Offer</div>
+      {cols.map((c) => <div key={c} style={{ padding: '10px 6px', textAlign: 'center' }}>{c}</div>)}
+    </div>
+    {rows.map((r, i) => <div key={r} style={{ display: 'grid', gridTemplateColumns: '120px repeat(6,1fr)', borderBottom: i === rows.length - 1 ? 'none' : '1px solid var(--line)' }}>
+      <div style={{ padding: '12px 12px', fontSize: 12, fontWeight: 500, background: 'var(--bg-2)' }}>{r}</div>
+      {grid[i].map((v, j) => {
+        const hue = v > .7 ? '#059669' : v > .5 ? '#34d399' : v > .3 ? '#fbbf24' : v > .15 ? '#fb7185' : '#e11d48';
+        return <div key={j} style={{ padding: '12px 6px', background: `color-mix(in srgb, ${hue} ${v * 70 + 10}%, white)`, display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 600, color: v > .5 ? '#fff' : '#444', textShadow: v > .5 ? '0 1px 2px rgba(0,0,0,.15)' : 'none' }}>{(v * 100).toFixed(0)}%</div>;
+      })}
+    </div>)}
+    <div style={{ padding: '10px 14px', fontSize: 10.5, color: 'var(--ink-3)', borderTop: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <span>Cannibalisation index by cohort × offer type</span>
+      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span>Low</span>
+        <span style={{ width: 60, height: 8, borderRadius: 99, background: 'linear-gradient(90deg,#059669,#34d399,#fbbf24,#fb7185,#e11d48)' }} />
+        <span>High</span>
+      </span>
+    </div>
+  </div>;
+}
+
+window.HiddenImpact = HiddenImpact;
+
+/* Premium lead-capture modal — strategic qualification fields */
+const { useState: useStateM, useEffect: useEffectM } = React;
+
+function LeadModal({ open, onClose }){
+  const [step, setStep] = useStateM(0);
+  const [data, setData] = useStateM({
+    email:'', company:'', category:'', mau:'', spend:'',
+    challenge:'', offers:[], concern:'', planning:'', launches:'',
+    survey:'', linkedin:''
+  });
+  const [submitted, setSubmitted] = useStateM(false);
+
+  useEffectM(()=>{
+    if(open){ document.body.style.overflow='hidden'; }
+    else { document.body.style.overflow=''; setStep(0); setSubmitted(false); }
+    const onKey=(e)=>{ if(e.key==='Escape') onClose(); };
+    window.addEventListener('keydown',onKey);
+    return ()=>{ document.body.style.overflow=''; window.removeEventListener('keydown',onKey); };
+  },[open]);
+
+  if(!open) return null;
+  const upd = (k,v) => setData(d=>({...d,[k]:v}));
+  const toggleOffer = (o) => setData(d=>({...d, offers: d.offers.includes(o)? d.offers.filter(x=>x!==o):[...d.offers,o]}));
+
+  const steps = [
+    { t:'About you', fields:['email','company','linkedin'] },
+    { t:'Your business', fields:['category','mau','spend','launches'] },
+    { t:'How you run offers today', fields:['offers','planning'] },
+    { t:'Your biggest concern', fields:['concern','challenge','survey'] },
+  ];
+  const canNext = (() => {
+    if(step===0) return data.email && data.company;
+    if(step===1) return data.category && data.mau && data.spend;
+    if(step===2) return data.offers.length>0 && data.planning;
+    return data.concern;
+  })();
+
+  const overlay = {
+    position:'fixed', inset:0, zIndex:1000, display:'grid', placeItems:'center',
+    background:'rgba(10,31,21,.55)', backdropFilter:'blur(12px)',
+    padding:24, animation:'lpm-fade .25s ease both'
+  };
+  const card = {
+    width:'min(640px,100%)', maxHeight:'min(720px,90vh)',
+    background:'#fff', borderRadius:24, overflow:'hidden',
+    display:'flex', flexDirection:'column',
+    boxShadow:'0 40px 100px -20px rgba(0,0,0,.40), 0 1px 0 rgba(255,255,255,.4) inset',
+    animation:'lpm-pop .35s cubic-bezier(.2,.8,.2,1) both'
+  };
+
+  return <div style={overlay} onClick={onClose}>
+    <style>{`
+      @keyframes lpm-fade { from { opacity:0 } to { opacity:1 } }
+      @keyframes lpm-pop { from { opacity:0; transform:translateY(20px) scale(.98) } to { opacity:1; transform:none } }
+      .lpm-fld { display:flex; flex-direction:column; gap:6px; margin-bottom:14px }
+      .lpm-l { font-size:11px; font-weight:600; color:var(--ink-2); letter-spacing:.04em; text-transform:uppercase }
+      .lpm-i { width:100%; padding:11px 14px; border:1px solid var(--line); border-radius:10px; font-size:14px; background:#fff; transition:border-color .12s,box-shadow .12s; outline:none; font-family:inherit; color:var(--ink) }
+      .lpm-i:focus { border-color:var(--emerald); box-shadow:0 0 0 3px rgba(52,211,153,.18) }
+      .lpm-i::placeholder { color:var(--ink-4) }
+      .lpm-chips { display:flex; flex-wrap:wrap; gap:6px }
+      .lpm-chip { padding:8px 14px; border:1px solid var(--line); border-radius:99px; background:#fff; cursor:pointer; font-size:13px; color:var(--ink-2); transition:all .14s; user-select:none }
+      .lpm-chip:hover { border-color:var(--ink-4) }
+      .lpm-chip.on { border-color:var(--emerald); background:var(--emerald-soft); color:var(--emerald-2); font-weight:500 }
+      .lpm-step-dot { width:6px; height:6px; border-radius:50%; background:var(--bg-4); transition:background .2s, width .2s }
+      .lpm-step-dot.on { background:var(--emerald); width:24px; border-radius:99px }
+    `}</style>
+    <div style={card} onClick={e=>e.stopPropagation()}>
+      {submitted ? (
+        <div style={{padding:'56px 40px',textAlign:'center'}}>
+          <div style={{width:60,height:60,borderRadius:18,background:'linear-gradient(135deg,var(--emerald),var(--mint))',display:'grid',placeItems:'center',margin:'0 auto 22px',color:'#fff',fontFamily:'var(--display)',fontSize:30}}>✓</div>
+          <h3 style={{fontFamily:'var(--display)',fontSize:32,fontWeight:400,letterSpacing:'-.01em',lineHeight:1.1,marginBottom:14}}>Thanks.</h3>
+          <p style={{fontSize:15,color:'var(--ink-2)',lineHeight:1.6,maxWidth:420,margin:'0 auto 26px'}}>Our team may reach out for product research, strategy conversations, or early feedback sessions. We'll be selective about who we onboard first.</p>
+          <button className="lp-btn primary" onClick={onClose}>Close</button>
+        </div>
+      ) : (<>
+        {/* Header */}
+        <div style={{padding:'24px 32px 18px',borderBottom:'1px solid var(--line)',display:'flex',alignItems:'center',justifyContent:'space-between',gap:16}}>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:10.5,letterSpacing:'.12em',textTransform:'uppercase',color:'var(--emerald-2)',fontWeight:600,marginBottom:6}}>Request access · {step+1}/{steps.length}</div>
+            <h3 style={{fontFamily:'var(--display)',fontSize:24,fontWeight:400,letterSpacing:'-.01em',lineHeight:1.1}}>{steps[step].t}</h3>
+          </div>
+          <button onClick={onClose} aria-label="Close" style={{width:32,height:32,borderRadius:9,border:'1px solid var(--line)',background:'#fff',display:'grid',placeItems:'center',cursor:'pointer',color:'var(--ink-3)',fontSize:14,flexShrink:0}}>✕</button>
+        </div>
+
+        {/* Stepper */}
+        <div style={{padding:'14px 32px',borderBottom:'1px solid var(--line)',display:'flex',alignItems:'center',gap:8}}>
+          {steps.map((_,i)=><span key={i} className={'lpm-step-dot '+(i<=step?'on':'')}/>)}
+          <span style={{marginLeft:'auto',fontSize:11,color:'var(--ink-3)'}}>Esc to close</span>
+        </div>
+
+        {/* Body */}
+        <div style={{flex:1,overflowY:'auto',padding:'24px 32px'}}>
+          {step===0 && <>
+            <div className="lpm-fld">
+              <label className="lpm-l">Work email</label>
+              <input className="lpm-i" placeholder="you@company.com" autoFocus value={data.email} onChange={e=>upd('email',e.target.value)}/>
+            </div>
+            <div className="lpm-fld">
+              <label className="lpm-l">Company name</label>
+              <input className="lpm-i" placeholder="Acme Co." value={data.company} onChange={e=>upd('company',e.target.value)}/>
+            </div>
+            <div className="lpm-fld">
+              <label className="lpm-l">LinkedIn profile <span style={{color:'var(--ink-3)',fontWeight:400,textTransform:'none',letterSpacing:'normal'}}>· optional</span></label>
+              <input className="lpm-i" placeholder="linkedin.com/in/…" value={data.linkedin} onChange={e=>upd('linkedin',e.target.value)}/>
+            </div>
+          </>}
+
+          {step===1 && <>
+            <div className="lpm-fld">
+              <label className="lpm-l">Business category</label>
+              <div className="lpm-chips">
+                {['D2C / Ecommerce','Fintech','Subscription','Food delivery','Quick commerce','Mobility','Marketplace','Loyalty / rewards','Consumer app','Other'].map(c=>
+                  <span key={c} className={'lpm-chip '+(data.category===c?'on':'')} onClick={()=>upd('category',c)}>{c}</span>
+                )}
+              </div>
+            </div>
+            <div className="lpm-fld">
+              <label className="lpm-l">Monthly active users</label>
+              <div className="lpm-chips">
+                {['<10k','10–100k','100k–1M','1M–10M','10M+'].map(m=>
+                  <span key={m} className={'lpm-chip '+(data.mau===m?'on':'')} onClick={()=>upd('mau',m)}>{m}</span>
+                )}
+              </div>
+            </div>
+            <div className="lpm-fld">
+              <label className="lpm-l">Monthly campaign / reward spend</label>
+              <div className="lpm-chips">
+                {['<₹5L','₹5–25L','₹25L–1Cr','₹1–5Cr','₹5Cr+'].map(s=>
+                  <span key={s} className={'lpm-chip '+(data.spend===s?'on':'')} onClick={()=>upd('spend',s)}>{s}</span>
+                )}
+              </div>
+            </div>
+            <div className="lpm-fld">
+              <label className="lpm-l">Campaigns launched per month</label>
+              <div className="lpm-chips">
+                {['1–2','3–5','5–10','10–25','25+'].map(s=>
+                  <span key={s} className={'lpm-chip '+(data.launches===s?'on':'')} onClick={()=>upd('launches',s)}>{s}</span>
+                )}
+              </div>
+            </div>
+          </>}
+
+          {step===2 && <>
+            <div className="lpm-fld">
+              <label className="lpm-l">Which offers do you run today? <span style={{color:'var(--ink-3)',fontWeight:400,textTransform:'none',letterSpacing:'normal'}}>· select all</span></label>
+              <div className="lpm-chips">
+                {['Cashback','Discounts','Coupons','Wallet top-ups','Loyalty / Rewards','Referrals','Pre-load credits','Subscriptions','Bundles'].map(o=>
+                  <span key={o} className={'lpm-chip '+(data.offers.includes(o)?'on':'')} onClick={()=>toggleOffer(o)}>{o}</span>
+                )}
+              </div>
+            </div>
+            <div className="lpm-fld">
+              <label className="lpm-l">How are campaigns currently planned?</label>
+              <div className="lpm-chips">
+                {['Excel / Sheets','CRM tool (Braze, MoEngage, etc.)','Agency / vendor','Gut feeling','Internal dashboards','In-house data team'].map(p=>
+                  <span key={p} className={'lpm-chip '+(data.planning===p?'on':'')} onClick={()=>upd('planning',p)}>{p}</span>
+                )}
+              </div>
+            </div>
+          </>}
+
+          {step===3 && <>
+            <div className="lpm-fld">
+              <label className="lpm-l">Your biggest concern right now</label>
+              <div className="lpm-chips">
+                {['Profitability of offers','Repeat purchase','Reward abuse','Low redemption','Margin pressure','Retention','Loyalty engagement'].map(c=>
+                  <span key={c} className={'lpm-chip '+(data.concern===c?'on':'')} onClick={()=>upd('concern',c)}>{c}</span>
+                )}
+              </div>
+            </div>
+            <div className="lpm-fld">
+              <label className="lpm-l">Current retention or campaign challenge <span style={{color:'var(--ink-3)',fontWeight:400,textTransform:'none',letterSpacing:'normal'}}>· optional</span></label>
+              <textarea className="lpm-i" rows="3" placeholder="e.g. cashback offers eating into margin, dormant users not coming back, finance & marketing disconnected…" value={data.challenge} onChange={e=>upd('challenge',e.target.value)} style={{resize:'vertical',minHeight:90}}/>
+            </div>
+            <div className="lpm-fld">
+              <label className="lpm-l">Open to a future product / strategy survey?</label>
+              <div className="lpm-chips">
+                {['Yes, happy to','Maybe later','No thanks'].map(s=>
+                  <span key={s} className={'lpm-chip '+(data.survey===s?'on':'')} onClick={()=>upd('survey',s)}>{s}</span>
+                )}
+              </div>
+            </div>
+          </>}
+        </div>
+
+        {/* Footer */}
+        <div style={{padding:'18px 32px',borderTop:'1px solid var(--line)',display:'flex',alignItems:'center',gap:10,background:'var(--bg-2)'}}>
+          {step>0 && <button className="lp-btn" onClick={()=>setStep(s=>s-1)}>← Back</button>}
+          <div style={{flex:1,fontSize:11.5,color:'var(--ink-3)'}}>{step<3? 'Step '+(step+1)+' of '+steps.length : 'Final step'}</div>
+          {step<steps.length-1
+            ? <button className="lp-btn accent" disabled={!canNext} onClick={()=>setStep(s=>s+1)} style={{opacity:canNext?1:.5,pointerEvents:canNext?'auto':'none'}}>Continue →</button>
+            : <button className="lp-btn accent" disabled={!canNext} onClick={()=>setSubmitted(true)} style={{opacity:canNext?1:.5,pointerEvents:canNext?'auto':'none'}}>Submit request</button>
+          }
+        </div>
+      </>)}
+    </div>
+  </div>;
+}
+
+window.LeadModal = LeadModal;
+
+
+
+/* ===== Production App shell (ProfitGrid) ===== */
+const { useState: useAppState, useEffect: useAppEffect } = React;
+
+const PALETTE = { a:"#059669", a2:"#047857", soft:"#d1fae5", mint:"#34d399", mintSoft:"#ecfdf5" };
+
+function Navbar({ openModal, brand, mark }){
+  return <nav className="lp-nav">
+    <div className="lp-logo">
+      <div className="lp-logo-mark">{mark}</div>
+      <span style={{fontFamily:'var(--display)',fontStyle:'italic',fontWeight:400,color:'var(--emerald-2)'}}>{brand}</span>
+    </div>
+    <div className="lp-nav-links">
+      <a href="#platform">Platform</a>
+      <a href="#hidden-impact">Intelligence</a>
+      <a href="#impact">User-base impact</a>
+      <a href="#simulation">Simulation</a>
+      <a href="#who">Built for</a>
+    </div>
+    <div className="lp-nav-actions">
+      <button className="lp-btn sm" style={{borderColor:'transparent'}} onClick={openModal}>Get access</button>
+      <button className="lp-btn accent sm" onClick={openModal}>Request demo</button>
+    </div>
+  </nav>;
+}
+
+function App(){
+  const [modalOpen, setModalOpen] = useAppState(false);
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
+  useAppEffect(()=>{ injectLPCss(); },[]);
+  useReveal();
+
+  const tweakCSS = `
+    :root{
+      --emerald:${PALETTE.a};
+      --emerald-2:${PALETTE.a2};
+      --emerald-soft:${PALETTE.soft};
+      --mint:${PALETTE.mint};
+      --mint-soft:${PALETTE.mintSoft};
+      --density:1;
+    }
+    .sec{padding:calc(100px * var(--density)) 32px}
+  `;
+
+  return <div className="lp">
+    <style>{tweakCSS}</style>
+    <Navbar openModal={openModal} brand="ProfitGrid" mark="P"/>
+    <Hero
+      openModal={openModal}
+      headline="Your offers should be"
+      headlineItalic="engineered."
+      headlineTail="not guessed."
+      subhead="The campaign intelligence layer for any business that runs cashback, discounts, loyalty, referrals, wallets, or coupons. Predict ROI, margin impact, and user-base behaviour — before you launch."
+      ctaPrimary="Request early access"
+      ctaSecondary=""
+    />
+    <Problem/>
+    <div id="impact"><UserBaseImpact/></div>
+    <div id="hidden-impact"><HiddenImpact/></div>
+    <div id="platform"><Platform/></div>
+    <div id="simulation"><Simulation openModal={openModal}/></div>
+    <div id="features"><Features/></div>
+    <div id="who"><WhoFor/></div>
+    <div id="how"><HowItWorks/></div>
+    <FinalCTA openModal={openModal}/>
+    <Footer brand="ProfitGrid"/>
+    <LeadModal open={modalOpen} onClose={closeModal}/>
+  </div>;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+
+</script>
+</body>
+</html>
