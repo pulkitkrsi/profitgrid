@@ -1198,10 +1198,57 @@ function LeadModal({ open, onClose }){
     survey:'', linkedin:''
   });
   const [submitted, setSubmitted] = useStateM(false);
+  const [submitting, setSubmitting] = useStateM(false);
+  const [submitError, setSubmitError] = useStateM(false);
+
+  const SUPABASE_URL = 'https://egnilydgesbtfsqwjwcg.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_TUpY30d-3xVNfSuGbp-Erw_EvpwTrk3';
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    setSubmitError(false);
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const payload = {
+        email: data.email,
+        company: data.company,
+        linkedin: data.linkedin || null,
+        category: data.category,
+        mau: data.mau,
+        spend: data.spend,
+        launches: data.launches,
+        offers: data.offers,
+        planning: data.planning,
+        concern: data.concern,
+        challenge: data.challenge || null,
+        survey: data.survey,
+        utm_source: params.get('utm_source') || null,
+        utm_medium: params.get('utm_medium') || null,
+        utm_campaign: params.get('utm_campaign') || null
+      };
+      const res = await fetch(SUPABASE_URL + '/rest/v1/leads', {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Submit failed');
+      setSubmitted(true);
+    } catch (e) {
+      console.error('Lead submission error:', e);
+      setSubmitError(true);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   useEffectM(()=>{
     if(open){ document.body.style.overflow='hidden'; }
-    else { document.body.style.overflow=''; setStep(0); setSubmitted(false); }
+    else { document.body.style.overflow=''; setStep(0); setSubmitted(false); setSubmitError(false); }
     const onKey=(e)=>{ if(e.key==='Escape') onClose(); };
     window.addEventListener('keydown',onKey);
     return ()=>{ document.body.style.overflow=''; window.removeEventListener('keydown',onKey); };
@@ -1374,11 +1421,15 @@ function LeadModal({ open, onClose }){
 
         {/* Footer */}
         <div style={{padding:'18px 32px',borderTop:'1px solid var(--line)',display:'flex',alignItems:'center',gap:10,background:'var(--bg-2)'}}>
-          {step>0 && <button className="lp-btn" onClick={()=>setStep(s=>s-1)}>← Back</button>}
-          <div style={{flex:1,fontSize:11.5,color:'var(--ink-3)'}}>{step<3? 'Step '+(step+1)+' of '+steps.length : 'Final step'}</div>
+          {step>0 && <button className="lp-btn" disabled={submitting} onClick={()=>setStep(s=>s-1)}>← Back</button>}
+          <div style={{flex:1,fontSize:11.5,color:submitError?'var(--rose)':'var(--ink-3)'}}>
+            {submitError ? 'Something went wrong — please try again.' : step<3? 'Step '+(step+1)+' of '+steps.length : 'Final step'}
+          </div>
           {step<steps.length-1
             ? <button className="lp-btn accent" disabled={!canNext} onClick={()=>setStep(s=>s+1)} style={{opacity:canNext?1:.5,pointerEvents:canNext?'auto':'none'}}>Continue →</button>
-            : <button className="lp-btn accent" disabled={!canNext} onClick={()=>setSubmitted(true)} style={{opacity:canNext?1:.5,pointerEvents:canNext?'auto':'none'}}>Submit request</button>
+            : <button className="lp-btn accent" disabled={!canNext||submitting} onClick={handleSubmit} style={{opacity:(canNext&&!submitting)?1:.5,pointerEvents:(canNext&&!submitting)?'auto':'none'}}>
+                {submitting ? 'Sending…' : 'Submit request'}
+              </button>
           }
         </div>
       </>)}
